@@ -9,6 +9,7 @@ entity Reg_array is
         READ_REG: in STD_LOGIC;  -- READ SIGNAL
         WRITE_REG: in STD_LOGIC; -- WRITE SIGNAL
         BYTE_SEL: in STD_LOGIC; -- 0 = LSB, 1 = MSB
+		  INC_DEC_REG: in STD_LOGIC_VECTOR(1 downto 0); -- MSb (0 = INC, 1 = DEC), LSb (1 = enable, 0 = disable) only 16b full reg
         CLK: in STD_LOGIC
     );
 end Reg_array;
@@ -20,27 +21,18 @@ architecture Behavioral of Reg_array is
 
 begin
 
-    process(CLK)
+    WR_RD: process(CLK)
     begin
         if rising_edge(CLK) then
-           
-            if WRITE_REG = '1' then
-                
+           --WRITE
+            if WRITE_REG = '1' and READ_REG = '0' then
                 if BYTE_SEL = '0' then
                     registers(to_integer(unsigned(REG_SEL)))(7 downto 0) <= DATA_BUS;
                 else
                     registers(to_integer(unsigned(REG_SEL)))(15 downto 8) <= DATA_BUS;
                 end if;
-            end if;
-        end if;
-    end process;
-
-    -- Proceso para Lectura del registro seleccionado
-    process(CLK)
-    begin
-        if rising_edge(CLK) then
-            --YOU CAN ONLY READ WHEN READ_REG = '1'
-            if READ_REG = '1' then
+				--READ
+				elsif READ_REG = '1' and WRITE_REG = '0' then
                 --READING THE BYTE
                 if BYTE_SEL = '0' then
                     DATA_BUS <= registers(to_integer(unsigned(REG_SEL)))(7 downto 0);
@@ -50,7 +42,22 @@ begin
             else
                 --HIGH IMPEDANCE WHEN NOTHING
                 DATA_BUS <= (others => 'Z');
+					 if INC_DEC_REG(0) = '1' then
+							if INC_DEC_REG(1) = '1' then
+								registers(to_integer(unsigned(REG_SEL))) <= std_logic_vector(unsigned(registers(to_integer(unsigned(REG_SEL)))) + 1);
+							else
+								registers(to_integer(unsigned(REG_SEL))) <= std_logic_vector(unsigned(registers(to_integer(unsigned(REG_SEL)))) - 1);
+							end if;
+					 end if;
             end if;
+        end if;
+    end process;
+
+    
+    INC_DEC: process(CLK)
+    begin
+        if rising_edge(CLK) then
+           
         end if;
     end process;
 
