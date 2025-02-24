@@ -53,12 +53,4 @@ begin
         end if;
     end process;
 
-    
-    INC_DEC: process(CLK)
-    begin
-        if rising_edge(CLK) then
-           
-        end if;
-    end process;
-
 end Behavioral;
