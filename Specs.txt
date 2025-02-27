@@ -1,0 +1,74 @@
+=========================
+=== CPU Specification ===
+=========================
+
+=== Overview ===
+A custom 8-bit CPU with a 16-bit register architecture, supporting basic arithmetic, logic, memory, and control flow instructions. The ALU uses combinational logic, and the instruction set is designed for compact encoding with variable-length instructions (1-3 bytes).
+
+=== Instructions ===
+0x0: ADD^	reg, imm8/reg		-> reg = reg + imm8/reg
+0x1: SUB^	reg, imm8/reg		-> reg = reg - imm8/reg   
+0x2: NAND	reg, imm8/reg		-> reg = reg & imm8/reg  
+0x3: SUBB^	reg, imm8/reg		-> reg = reg - imm8/reg - b    
+0x4: XOR	reg, imm8/reg		-> reg = reg ^ imm8/reg  
+0x5: NOR	reg, imm8/reg		-> reg = ~(reg | imm8/reg)   
+0x6: MOV	reg, imm8/reg		-> reg = imm8/reg 
+0x7: LDR	reg, [imm16/reg]	-> reg = [imm16/reg]  
+0x8: STR	[imm16/reg], reg	-> [imm16/reg] = reg   
+0x9: JNZ	imm16			-> PC = imm16 if flag Z == 1 else NOP
+0xA: ADC^	reg, imm8/reg		-> reg = reg + imm8/reg + c  
+0xB: LDA	reg, [imm16]		-> reg = imm16    
+0xC: SHL^	reg 			-> reg = reg << 1  
+0xD: SHR^	reg			-> reg = reg >> 1  
+0xE: PUSH	imm8/reg		-> [SP--] = imm8/reg     
+0xF: POP	reg			-> reg = [++SP]    
+
+
+^: The instruction marked with this symbol are affected or affect the carry flag if the instructions
+are not marked with this symbol they will not affect in any way this flag.
+*All the instructions affect the Zero flag.
+
+=== Registers ===
+8 16 bit registers
+	R0 		(0x0) : GP register 		(MSB 1 reg) 0000
+	R1		(0x1) : GP register 		(LSB 1 reg) 0001
+	R2		(0x2) : GP register 		(MSB 2 reg) 0010
+	R3		(0x3) : GP register 		(LSB 2 reg) 0011
+	R4		(0x4) : GP register 		(MSB 3 reg) 0100
+	R5		(0x5) : GP register 		(LSB 3 reg) 0101
+	PC		(0x6) : Program counter 	(4 reg)     0110
+	SP		(0x7) : Stack Pointer		(5 reg)	    0111
+
+	+1 aux flag 8 bit register FG mapped in memory.
+	Registers [6,8] are only accesible to the CU not the programmer. 
+*Calling convention
+	*R0-R5, PC, SP, FG for arguments.
+	*Use MSB register name if arguments are 16-bits wide, in case of PC or SP use it as it is.
+
+=== Microcode === 
+4kib x 16b ROM
+0x000...0xF00
+where most significant HEX is Opcode
+
+Max 256 microinstructions per opcode
+
+=== Instruction layout (Explicitly copied from jdh, see channel in youtube) ===
+
+Instruction layout is XXXXYZZZ where
+X: 4-bit instruction identifier (see Instructions section)
+Y: 0 if argument is imm(8/16), 1 if argument is reg
+Z: 3-bit register identifier of first register argument  (see Registers section)
+
+* instructions with reg: reg arguments have the second register encoded in the
+  first three bits of the second instruction byte.
+* For LDA/STR, the Y-bit indicates imm16 (0) and full reg (1). Z-bits are ALWAYS reg.
+* Instructions can be 1-3 bytes long
+    * PUSH/POP with one register argument are one byte instructions
+    * LDR/STR with Y=0 (imm16) are 3 bytes each.
+    * LDA is always 3 bytes.
+
+=== Status register layout ===
+Status register layout is ------ZC where
+C: set to 1 if an operation produces a carry or borrow or overflow (ADD/ADC/SUBB/SUB/SHR/SHL).
+Z: set to 1 if the result of the operation is zero.
+-: Not used.
