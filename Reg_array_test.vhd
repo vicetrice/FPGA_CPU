@@ -14,6 +14,7 @@ ARCHITECTURE behavior OF tb_Reg_array IS
     SIGNAL BYTE_SEL: STD_LOGIC; -- 0 = LSB, 1 = MSB
     SIGNAL INC_DEC_REG: STD_LOGIC_VECTOR(1 DOWNTO 0); -- Increment/Decrement control
     SIGNAL CLK: STD_LOGIC := '0'; -- Clock signal
+    SIGNAL ADDRESS_BUS: STD_LOGIC_VECTOR(15 DOWNTO 0); -- Address bus signal for output checking
 
     -- Reg_array component
     COMPONENT Reg_array
@@ -24,7 +25,8 @@ ARCHITECTURE behavior OF tb_Reg_array IS
             WRITE_REG: IN STD_LOGIC;
             BYTE_SEL: IN STD_LOGIC;
             INC_DEC_REG: IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-            CLK: IN STD_LOGIC
+            CLK: IN STD_LOGIC;
+            ADDRESS_BUS: OUT STD_LOGIC_VECTOR(15 DOWNTO 0) -- Address bus output
         );
     END COMPONENT;
     
@@ -37,7 +39,8 @@ BEGIN
         WRITE_REG => WRITE_REG,
         BYTE_SEL => BYTE_SEL,
         INC_DEC_REG => INC_DEC_REG,
-        CLK => CLK
+        CLK => CLK,
+        ADDRESS_BUS => ADDRESS_BUS
     );
 
     -- Clock generation in a concurrent process
@@ -54,7 +57,7 @@ BEGIN
     stim_proc: PROCESS
     BEGIN
         -- Signal initialization
-        REG_SEL <= "111"; -- Select register 0
+        REG_SEL <= "111"; -- Select register 7
         WRITE_REG <= '0'; -- Do not write initially
         READ_REG <= '0';  -- Do not read initially
         BYTE_SEL <= '0';  -- Select LSB (least significant byte)
@@ -64,7 +67,7 @@ BEGIN
         -- Wait for one clock cycle
         WAIT FOR 20 ns;
 
-        -- Write value to LSB of register 8
+        -- Write value to LSB of register 7
         WRITE_REG <= '1'; -- Enable write
         DATA_BUS <= "10101010"; -- Data to write (0xAA)
         WAIT FOR 20 ns;
@@ -74,7 +77,7 @@ BEGIN
         DATA_BUS <= (others => 'Z'); -- Data bus in high impedance
         WAIT FOR 20 ns;
 
-        -- Read value from LSB of register 0
+        -- Read value from LSB of register 7
         READ_REG <= '1'; -- Enable read
         WAIT FOR 20 ns;
         
@@ -86,7 +89,7 @@ BEGIN
         -- Change to BYTE_SEL = '1' to select the MSB
         BYTE_SEL <= '1';  -- Select MSB (most significant byte)
         
-        -- Write value to MSB of register 0
+        -- Write value to MSB of register 7
         WRITE_REG <= '1'; -- Enable write
         DATA_BUS <= "11001100"; -- Data to write (0xCC)
         WAIT FOR 20 ns;
@@ -96,7 +99,7 @@ BEGIN
         DATA_BUS <= (others => 'Z'); -- Data bus in high impedance
         WAIT FOR 20 ns;
 
-        -- Read value from MSB of register 0
+        -- Read value from MSB of register 7
         READ_REG <= '1'; -- Enable read
         WAIT FOR 20 ns;
         
@@ -104,7 +107,7 @@ BEGIN
         READ_REG <= '0';
         WAIT FOR 20 ns;
         
-        -- Increment a register
+        -- Increment a register (register 7)
         INC_DEC_REG <= "11"; -- Increment signal
         WAIT FOR 20 ns;
         
@@ -116,6 +119,24 @@ BEGIN
         READ_REG <= '1'; -- Enable read
         BYTE_SEL <= '0'; -- Select LSB
         WAIT FOR 20 ns;
+
+        -- WRITE to REGISTER WITH ADDR OUT
+        REG_SEL <= "110"; -- Select register 6
+		  READ_REG <= '0';
+		  WAIT FOR 20 ns;
+        
+		  WRITE_REG <= '1'; -- Enable write
+        DATA_BUS <= "10101010"; -- Data to write (0xAA)
+		  WAIT FOR 20 ns;
+        
+        
+        -- Now write to the MSB of register 6
+        BYTE_SEL <= '1'; -- Select MSB
+        DATA_BUS <= "10101010"; -- Data to write (0xAA)
+        WAIT FOR 20 ns;
+		  
+		  WRITE_REG <= '0';
+		  DATA_BUS <= (others => 'Z');
 
         -- Finalization
         WAIT;

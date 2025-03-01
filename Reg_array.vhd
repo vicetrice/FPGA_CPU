@@ -6,6 +6,7 @@ entity Reg_array is
     port(
         REG_SEL: in STD_LOGIC_VECTOR(2 downto 0); -- REGISTER SELECT
         DATA_BUS: inout STD_LOGIC_VECTOR(7 downto 0);
+		  ADDRESS_BUS: out STD_LOGIC_VECTOR(15 downto 0);
         READ_REG: in STD_LOGIC;  -- READ SIGNAL
         WRITE_REG: in STD_LOGIC; -- WRITE SIGNAL
         BYTE_SEL: in STD_LOGIC; -- 0 = LSB, 1 = MSB
@@ -50,7 +51,15 @@ begin
 							end if;
 					 end if;
             end if;
+				
         end if;
     end process;
+	 
+	 --OUT FOR ADDRESS_BUS, spent more FPGA resources not using DISTRIBUTED RAM but DOING so makes
+	 -- the logic less complicated and improve CPU performance by reducing the number of cycles for fetching.
+	 ADDRESS_BUS <= registers(6);
+	 
+	 
+	 
 
 end Behavioral;
