@@ -29,18 +29,19 @@ are not marked with this symbol they will not affect in any way this flag.
 *All the instructions affect the Zero flag.
 
 === Registers ===
-8 16 bit registers
-	R0 		(0x0) : GP register 		(MSB 1 reg) 0000
-	R1		(0x1) : GP register 		(LSB 1 reg) 0001
-	R2		(0x2) : GP register 		(MSB 2 reg) 0010
-	R3		(0x3) : GP register 		(LSB 2 reg) 0011
-	R4		(0x4) : GP register 		(MSB 3 reg) 0100
-	R5		(0x5) : GP register 		(LSB 3 reg) 0101
-	PC		(0x6) : Program counter 	(4 reg)     0110
-	SP		(0x7) : Stack Pointer		(5 reg)	    0111
+8  16 bit registers
+									BYTE_SEL|	REG_SEL	
+	R0 		(0x0) : GP register 		(LSB 0 reg) 	0		000
+	R1		(0x1) : GP register 		(LSB 1 reg) 	0		001
+	R2		(0x2) : GP register 		(LSB 2 reg) 	0		010
+	R3		(0x3) : GP register 		(LSB 3 reg) 	0		011
+	R4		(0x4) : GP register 		(LSB 4 reg) 	0		100
+	R5		(0x5) : GP register 		(LSB 5 reg) 	0		101
+	PC		(0x6) : Program counter 	(6 reg)     	X		110
+	SP		(0x7) : Stack Pointer		(7 reg)	    	X		111
 
-	+1 aux flag 8 bit register FG mapped in memory.
-	Registers [6,8] are only accesible to the CU not the programmer. 
+*+1 aux flag 8 bit register FG mapped in memory.
+* MSB of [R0,R5] are only accesible to the CU not the programmer. 
 *Calling convention
 	*R0-R5, PC, SP, FG for arguments.
 	*Use MSB register name if arguments are 16-bits wide, in case of PC or SP use it as it is.
