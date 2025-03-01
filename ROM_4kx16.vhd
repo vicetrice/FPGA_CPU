@@ -13,10 +13,12 @@ architecture Behavioral of ROM_4Kx16 is
 																	-- ROM content --
 												-- LAYOUT (SEE CONTROL_UNIT FOR NUMBER INFO) --
 			-- 	1|		2|		3|		4|		5|		6|		7|		8|		9|		10|	11|	12|	13|	14|	15|	16|
-        0 => "	0		0		0		0		0		0		0		0		0		0		0		0		0		0		0		0	",
-        1 => x"5678",
-        2 => x"9ABC",
-        3 => x"DEF0",
+        0 => X"0001", 
+		  1 => X"1001", 
+		  2 => X"0001", 
+		  3 => X"0001", 
+		  4 => X"0000", 
+		  256 => X"1001",
         -- ...
         others => x"0000"  -- Default values
     );
