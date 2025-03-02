@@ -8,6 +8,9 @@ ENTITY CPU IS
 		READY : IN STD_LOGIC;
 		DATA_BUS_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		DATA_BUS_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+		DATA_BUS_IN_EXTERN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+		EXTERN_READ: out STD_LOGIC;
+		EXTERN_WRITE: out STD_LOGIC;
 		ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
 	);
 END CPU;
@@ -109,8 +112,6 @@ ARCHITECTURE Behavioral OF CPU IS
 	SIGNAL REG_OUTS: STD_LOGIC_VECTOR(7 downto 0);
 	SIGNAL READ_REG: STD_LOGIC;
 	
-	signal INTERNAL_BUS: STD_LOGIC_VECTOR(7 downto 0);
-	
 BEGIN
 	----------------------------------------------------------------- SPECIAL REGISTERS -----------------------------------------------------------------
 
@@ -178,7 +179,7 @@ BEGIN
 	END PROCESS;
 
 	----------------------------------------------------------------------------------------------------------------------------------
-	MUX_DATA_OUT : PROCESS (REN_0, REN_1, REN_2, ACC_REG, IP_reg, FG_REG, ALU_OUT,REG_OUTS)
+	MUX_DATA_OUT : PROCESS (REN_0, REN_1, REN_2, ACC_REG, IP_reg, FG_REG, ALU_OUT,REG_OUTS,DATA_BUS_IN_EXTERN)
 		VARIABLE sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
 	BEGIN
 		sel := REN_2 & REN_1 & REN_0;
@@ -191,8 +192,10 @@ BEGIN
 				DATA_BUS_OUT <= FG_REG;
 			WHEN "101" =>
 				DATA_BUS_OUT <= IP_reg(7 DOWNTO 0);
+			WHEN "010" =>
+				DATA_BUS_OUT <= DATA_BUS_IN_EXTERN;
 			WHEN OTHERS =>
-				DATA_BUS_OUT <= (OTHERS => '1');
+				DATA_BUS_OUT <= (others => '1');
 		END CASE;
 	END PROCESS;
 
@@ -240,6 +243,8 @@ BEGIN
 		);	
 
 	READ_REG <= '1' when (REN_2 & REN_1 & REN_0) = STD_LOGIC_VECTOR(to_unsigned(1, 3)) else '0';
+	EXTERN_READ <= '1' when (REN_2 & REN_1 & REN_0) = STD_LOGIC_VECTOR(to_unsigned(2, 3)) and RAM_WEN = '0' else '0';
+	EXTERN_WRITE <= '1' when (REN_2 & REN_1 & REN_0) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)) and RAM_WEN = '1' else '0';
 	ADDRESS_BUS <= IP_REG;
 	
 END Behavioral;
