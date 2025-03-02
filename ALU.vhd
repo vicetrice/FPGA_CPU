@@ -9,23 +9,21 @@ entity ALU is
            opcode  : in  STD_LOGIC_VECTOR (3 downto 0);  
            StatIn  : in  STD_LOGIC_VECTOR (7 downto 0);  
            Result  : out STD_LOGIC_VECTOR (7 downto 0);  
-           StatOut : out STD_LOGIC_VECTOR (7 downto 0);
-			  OE		 : in  STD_LOGIC
+           StatOut : out STD_LOGIC_VECTOR (7 downto 0)
          );
 end ALU;
 
 architecture Behavioral of ALU is
 begin
-    process(A, B, opcode, StatIn, OE)
+    process(A, B, opcode, StatIn)
         variable add_sub : STD_LOGIC_VECTOR(8 downto 0);
         variable Res     : STD_LOGIC_VECTOR(7 downto 0);
 		  variable check	 : boolean;
     begin
         -- Valores por defecto
-        Result <= "ZZZZZZZZ";
+        Result <= "11111111";
         StatOut <= StatIn;
 		  
-		  if (OE = '1') then
 		  check := true;
         case opcode is
             when "0000" =>  -- ADD (A + B)
@@ -71,7 +69,6 @@ begin
 
         end case;
 		   
-        -- Actualización de la bandera Zero
 			if(check) then
 				if Res = "00000000" then
 					StatOut(0) <= '1';
@@ -80,13 +77,6 @@ begin
 				end if;
 			end if;
 			
-		  else
-		  Res := "ZZZZZZZZ";
-		  StatOut <= StatIn;
-		  
-		  end if;
-
-        -- Asignación final del resultado
         Result <= Res;
       
     end process;
