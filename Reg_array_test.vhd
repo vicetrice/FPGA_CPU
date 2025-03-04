@@ -8,45 +8,43 @@ END tb_Reg_array;
 ARCHITECTURE behavior OF tb_Reg_array IS
     -- Signals for connecting to the Reg_array entity
     SIGNAL REG_SEL: STD_LOGIC_VECTOR(2 DOWNTO 0); -- Register selector
-    SIGNAL DATA_BUS: STD_LOGIC_VECTOR(7 DOWNTO 0); -- Data bus
+    SIGNAL DATA_OUT_BUS: STD_LOGIC_VECTOR(7 DOWNTO 0); -- Output data bus
+    SIGNAL DATA_IN_BUS: STD_LOGIC_VECTOR(7 DOWNTO 0); -- Input data bus
     SIGNAL READ_REG: STD_LOGIC;  -- Read signal
     SIGNAL WRITE_REG: STD_LOGIC; -- Write signal
     SIGNAL BYTE_SEL: STD_LOGIC; -- 0 = LSB, 1 = MSB
-    SIGNAL INC_DEC_REG: STD_LOGIC_VECTOR(1 DOWNTO 0); -- Increment/Decrement control
     SIGNAL CLK: STD_LOGIC := '0'; -- Clock signal
-    SIGNAL ADDRESS_BUS: STD_LOGIC_VECTOR(15 DOWNTO 0); -- Address bus signal for output checking
 
     -- Reg_array component
     COMPONENT Reg_array
         PORT(
             REG_SEL: IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-            DATA_BUS: INOUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+            DATA_OUT_BUS: OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+            DATA_IN_BUS: IN STD_LOGIC_VECTOR(7 DOWNTO 0);
             READ_REG: IN STD_LOGIC;
             WRITE_REG: IN STD_LOGIC;
             BYTE_SEL: IN STD_LOGIC;
-            INC_DEC_REG: IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-            CLK: IN STD_LOGIC;
-            ADDRESS_BUS: OUT STD_LOGIC_VECTOR(15 DOWNTO 0) -- Address bus output
+            CLK: IN STD_LOGIC
         );
     END COMPONENT;
+
+    FOR ALL: Reg_array USE ENTITY work.Reg_array(Behavioral2);
     
 BEGIN
     -- Instantiating the Reg_array component
     uut: Reg_array PORT MAP(
         REG_SEL => REG_SEL,
-        DATA_BUS => DATA_BUS,
+        DATA_OUT_BUS => DATA_OUT_BUS,
+        DATA_IN_BUS => DATA_IN_BUS,
         READ_REG => READ_REG,
         WRITE_REG => WRITE_REG,
         BYTE_SEL => BYTE_SEL,
-        INC_DEC_REG => INC_DEC_REG,
-        CLK => CLK,
-        ADDRESS_BUS => ADDRESS_BUS
+        CLK => CLK
     );
 
-    -- Clock generation in a concurrent process
+    -- Clock generation process
     clock_process: PROCESS
     BEGIN
-        -- Generating a 10 ns clock
         CLK <= '0';
         WAIT FOR 10 ns;
         CLK <= '1';
@@ -58,87 +56,68 @@ BEGIN
     BEGIN
         -- Signal initialization
         REG_SEL <= "111"; -- Select register 7
-        WRITE_REG <= '0'; -- Do not write initially
-        READ_REG <= '0';  -- Do not read initially
-        BYTE_SEL <= '0';  -- Select LSB (least significant byte)
-        INC_DEC_REG <= "00"; -- Initialize increment/decrement control
-        DATA_BUS <= (others => 'Z'); -- Data bus in high impedance
+        WRITE_REG <= '0'; 
+        READ_REG <= '0';  
+        BYTE_SEL <= '0';  
+        DATA_IN_BUS <= (others => '0');
 
-        -- Wait for one clock cycle
+        -- Wait for clock cycle
         WAIT FOR 20 ns;
 
-        -- Write value to LSB of register 7
-        WRITE_REG <= '1'; -- Enable write
-        DATA_BUS <= "10101010"; -- Data to write (0xAA)
+        -- Write to LSB of register 7
+        WRITE_REG <= '1';
+        DATA_IN_BUS <= "10101010"; -- 0xAA
         WAIT FOR 20 ns;
-
-        -- Disable write and wait one cycle
         WRITE_REG <= '0';
-        DATA_BUS <= (others => 'Z'); -- Data bus in high impedance
-        WAIT FOR 20 ns;
 
-        -- Read value from LSB of register 7
-        READ_REG <= '1'; -- Enable read
+        -- Read LSB of register 7
+        READ_REG <= '1';
         WAIT FOR 20 ns;
-        
-        -- Disable read and wait
         READ_REG <= '0';
-        WAIT FOR 20 ns;
 
-        -- Now test with the MSB:
-        -- Change to BYTE_SEL = '1' to select the MSB
-        BYTE_SEL <= '1';  -- Select MSB (most significant byte)
-        
-        -- Write value to MSB of register 7
-        WRITE_REG <= '1'; -- Enable write
-        DATA_BUS <= "11001100"; -- Data to write (0xCC)
+        -- Write to MSB of register 7
+        BYTE_SEL <= '1';  
+        WRITE_REG <= '1';
+        DATA_IN_BUS <= "11001100"; -- 0xCC
         WAIT FOR 20 ns;
-
-        -- Disable write and wait one cycle
         WRITE_REG <= '0';
-        DATA_BUS <= (others => 'Z'); -- Data bus in high impedance
-        WAIT FOR 20 ns;
 
-        -- Read value from MSB of register 7
-        READ_REG <= '1'; -- Enable read
+        -- Read MSB of register 7
+        READ_REG <= '1';
         WAIT FOR 20 ns;
-        
-        -- Disable read and wait
         READ_REG <= '0';
-        WAIT FOR 20 ns;
-        
-        -- Increment a register (register 7)
-        INC_DEC_REG <= "11"; -- Increment signal
-        WAIT FOR 20 ns;
-        
-        -- Decrement the register
-        INC_DEC_REG <= "10"; -- Decrement signal
-        WAIT FOR 20 ns;
-        
-        -- Read the value again after increment/decrement
-        READ_REG <= '1'; -- Enable read
-        BYTE_SEL <= '0'; -- Select LSB
-        WAIT FOR 20 ns;
 
-        -- WRITE to REGISTER WITH ADDR OUT
-        REG_SEL <= "110"; -- Select register 6
-		  READ_REG <= '0';
-		  WAIT FOR 20 ns;
-        
-		  WRITE_REG <= '1'; -- Enable write
-        DATA_BUS <= "10101010"; -- Data to write (0xAA)
-		  WAIT FOR 20 ns;
-        
-        
-        -- Now write to the MSB of register 6
-        BYTE_SEL <= '1'; -- Select MSB
-        DATA_BUS <= "10101010"; -- Data to write (0xAA)
+        -- Read LSB again
+        READ_REG <= '1';
+        BYTE_SEL <= '0';
+        WAIT FOR 20 ns;
+        READ_REG <= '0';
+
+        -- Write to register 6
+        REG_SEL <= "110"; 
+        WRITE_REG <= '1';
+        DATA_IN_BUS <= X"BB"; 
+        WAIT FOR 20 ns;
+        WRITE_REG <= '0';
+
+        -- Write to MSB of register 6
+        BYTE_SEL <= '1';
+        WRITE_REG <= '1';
+        DATA_IN_BUS <= X"FF";
+        WAIT FOR 20 ns;
+        WRITE_REG <= '0';
+
+        -- Read register 6
+        READ_REG <= '1';
+		  BYTE_SEL <= '0';
         WAIT FOR 20 ns;
 		  
-		  WRITE_REG <= '0';
-		  DATA_BUS <= (others => 'Z');
+        -- Read register 6
+        READ_REG <= '1';
+		  BYTE_SEL <= '1';
+        WAIT FOR 20 ns;
 
-        -- Finalization
+        -- Stop simulation
         WAIT;
     END PROCESS;
 
