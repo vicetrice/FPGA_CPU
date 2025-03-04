@@ -9,7 +9,7 @@ A custom 8-bit CPU with a 16-bit register architecture, supporting basic arithme
 0x0: ADD^	reg, imm8/reg		-> reg = reg + imm8/reg
 0x1: SUB^	reg, imm8/reg		-> reg  = reg - imm8/reg
 0x2: NAND	reg, imm8/reg		-> reg = ~(reg & imm8/reg)  
-0x3: SUBB^	reg, imm8/reg		-> reg = reg - imm8/reg - b    
+0x3: SBB^	reg, imm8/reg		-> reg = reg - imm8/reg - b    
 0x4: XOR	reg, imm8/reg		-> reg = reg ^ imm8/reg  
 0x5: NOR	reg, imm8/reg		-> reg = ~(reg | imm8/reg)   
 0x6: MOV	reg, imm8/reg		-> reg = imm8/reg 
@@ -30,7 +30,7 @@ are not marked with this symbol they will not affect in any way this flag.
 *Only the AL operations affect the zero flag.
 
 === Registers ===
-8  16 bit registers
+8  16 bit registers (in the VHDL code is shown as 16*8b registers, made to make the XST happy, it have two reg arch)
 									BYTE_SEL|	REG_SEL	
 	R0 		(0x0) : GP register 		(LSB 0 reg) 	0		000
 	R1		(0x1) : GP register 		(LSB 1 reg) 	0		001
@@ -38,10 +38,13 @@ are not marked with this symbol they will not affect in any way this flag.
 	R3		(0x3) : GP register 		(LSB 3 reg) 	0		011
 	R4		(0x4) : GP register 		(LSB 4 reg) 	0		100
 	R5		(0x5) : GP register 		(LSB 5 reg) 	0		101
-	FG		(0x6) : FLAGS register		(6 reg)     	X		110
+	FG		(0x6) : FLAGS register  	(6 reg)     	X		110
 	SP		(0x7) : Stack Pointer		(7 reg)	    	X		111
 
 *Separated register for PC, will only be changed with jnz instruction.
+*FG register have only 8 bits, but can be loaded with 16 bits with LDA,
+the use of any other instruction will change the flags stored but LDA with FG will
+use a extra register and it will not change the flags use in the ALU.
 *Calling convention
 	*R0-R6, SP, FG for arguments.
 	*BYTE_SEL is controlled by the CU.
