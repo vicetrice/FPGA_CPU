@@ -1,0 +1,6 @@
+work	"ALU.vhd"
+work	"CPU.vhd"
+work	"CPU2.vhd"
+work	"Control_Unit.vhd"
+work	"ROM_4kx16.vhd"
+work	"Reg_array.vhd"
