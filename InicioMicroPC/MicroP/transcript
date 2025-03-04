@@ -1,9 +1,8 @@
 # Reading pref.tcl
-# ERROR: No extended dataflow license exists
 # do {tb_CPU2.fdo}
 # ** Warning: (vlib-34) Library already exists at "work".
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 19:15:57 on Mar 04,2025
+# Start time: 00:48:33 on Mar 05,2025
 # vcom -reportprogress 300 -explicit -93 ROM_4kx16.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -11,10 +10,21 @@
 # -- Loading package NUMERIC_STD
 # -- Compiling entity ROM_4Kx16
 # -- Compiling architecture Behavioral of ROM_4Kx16
-# End time: 19:15:58 on Mar 04,2025, Elapsed time: 0:00:01
+# End time: 00:48:33 on Mar 05,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 19:15:58 on Mar 04,2025
+# Start time: 00:48:33 on Mar 05,2025
+# vcom -reportprogress 300 -explicit -93 Reg_array.vhd 
+# -- Loading package STANDARD
+# -- Loading package TEXTIO
+# -- Loading package std_logic_1164
+# -- Loading package NUMERIC_STD
+# -- Compiling entity Reg_array
+# -- Compiling architecture Behavioral2 of Reg_array
+# End time: 00:48:33 on Mar 05,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
+# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
+# Start time: 00:48:33 on Mar 05,2025
 # vcom -reportprogress 300 -explicit -93 Control_Unit.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -23,10 +33,10 @@
 # -- Compiling entity Control_Unit
 # -- Compiling architecture Behavioral of Control_Unit
 # -- Loading entity ROM_4Kx16
-# End time: 19:15:58 on Mar 04,2025, Elapsed time: 0:00:00
+# End time: 00:48:33 on Mar 05,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 19:15:59 on Mar 04,2025
+# Start time: 00:48:34 on Mar 05,2025
 # vcom -reportprogress 300 -explicit -93 ALU.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -35,10 +45,10 @@
 # -- Loading package STD_LOGIC_UNSIGNED
 # -- Compiling entity ALU
 # -- Compiling architecture Behavioral of ALU
-# End time: 19:15:59 on Mar 04,2025, Elapsed time: 0:00:00
+# End time: 00:48:34 on Mar 05,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 19:15:59 on Mar 04,2025
+# Start time: 00:48:34 on Mar 05,2025
 # vcom -reportprogress 300 -explicit -93 CPU.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -47,11 +57,10 @@
 # -- Compiling entity CPU
 # -- Compiling architecture Behavioral of CPU
 # -- Loading entity Reg_array
-# ** Warning: CPU.vhd(207): (vcom-1445) Duplicate signal "ALU_OUT" found in sensitivity list.
-# End time: 19:15:59 on Mar 04,2025, Elapsed time: 0:00:00
-# Errors: 0, Warnings: 1
+# End time: 00:48:34 on Mar 05,2025, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 0
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 19:15:59 on Mar 04,2025
+# Start time: 00:48:34 on Mar 05,2025
 # vcom -reportprogress 300 -explicit -93 CPU2.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -59,23 +68,10 @@
 # -- Loading package NUMERIC_STD
 # -- Compiling entity CPU2
 # -- Compiling architecture Behavioral of CPU2
-# End time: 19:16:00 on Mar 04,2025, Elapsed time: 0:00:01
+# End time: 00:48:34 on Mar 05,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 19:16:00 on Mar 04,2025
-# vcom -reportprogress 300 -explicit -93 Reg_array.vhd 
-# -- Loading package STANDARD
-# -- Loading package TEXTIO
-# -- Loading package std_logic_1164
-# -- Loading package NUMERIC_STD
-# -- Compiling entity Reg_array
-# -- Compiling architecture Behavioral of Reg_array
-# -- Compiling architecture Behavioral2 of Reg_array
-# -- Loading entity Reg_array
-# End time: 19:16:00 on Mar 04,2025, Elapsed time: 0:00:00
-# Errors: 0, Warnings: 0
-# Model Technology ModelSim - Intel FPGA Edition vcom 2020.1 Compiler 2020.02 Feb 28 2020
-# Start time: 19:16:00 on Mar 04,2025
+# Start time: 00:48:35 on Mar 05,2025
 # vcom -reportprogress 300 -explicit -93 CPU2_test.vhd 
 # -- Loading package STANDARD
 # -- Loading package TEXTIO
@@ -83,10 +79,10 @@
 # -- Loading package NUMERIC_STD
 # -- Compiling entity tb_CPU2
 # -- Compiling architecture behavior of tb_CPU2
-# End time: 19:16:01 on Mar 04,2025, Elapsed time: 0:00:01
+# End time: 00:48:35 on Mar 05,2025, Elapsed time: 0:00:00
 # Errors: 0, Warnings: 0
 # vsim -voptargs=""+acc"" -t 1ps -lib work work.tb_CPU2 
-# Start time: 19:16:01 on Mar 04,2025
+# Start time: 00:48:35 on Mar 05,2025
 # Loading std.standard
 # Loading std.textio(body)
 # Loading ieee.std_logic_1164(body)
@@ -101,10 +97,10 @@
 # Loading work.alu(behavioral)
 # Loading work.reg_array(behavioral2)
 # ** Warning: (vsim-WLF-5000) WLF file currently in use: vsim.wlf
-#           File in use by: alvar  Hostname: DESKTOP-4SM78CQ  ProcessID: 468
-#           Attempting to use alternate WLF file "./wlftgy43sz".
+#           File in use by: alvar  Hostname: DESKTOP-4SM78CQ  ProcessID: 22156
+#           Attempting to use alternate WLF file "./wlftd00fie".
 # ** Warning: (vsim-WLF-5001) Could not open WLF file: vsim.wlf
-#           Using alternate file: ./wlftgy43sz
+#           Using alternate file: ./wlftd00fie
 # .main_pane.wave.interior.cs.body.pw.wf
 # .main_pane.structure.interior.cs.body.struct
 # .main_pane.objects.interior.cs.body.tree

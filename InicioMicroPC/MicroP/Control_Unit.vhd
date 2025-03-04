@@ -120,7 +120,7 @@ BEGIN
     ACC_WEN <= CONTROL_OUT(4); -- Accumulator Write Enable
     TREG_EN <= CONTROL_OUT(5); -- Temporary Register Enable
     FREE_USE <= CONTROL_OUT(6); -- FREE_USE 
-    INC_DEC_EN <= CONTROL_OUT(7); -- Instruction Pointer Increment/Decrement
+    INC_DEC_EN <= CONTROL_OUT(7) when READY = '1' else '0'; -- Instruction Pointer Increment/Decrement
     IP_WEN <= CONTROL_OUT(8); -- Instruction Pointer Enable
     REN_2 <= CONTROL_OUT(9); -- multiplex read
     RAM_WEN <= CONTROL_OUT(10); -- RAM Write Enable

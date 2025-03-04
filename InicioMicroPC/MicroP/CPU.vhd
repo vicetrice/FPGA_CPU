@@ -204,7 +204,7 @@ BEGIN
 	end process;
 
 	----------------------------------------------------------------------------------------------------------------------------------
-	MUX_DATA_OUT : PROCESS (SEL_SYNC, ACC_REG, IP_reg, FG_REG, ALU_OUT, REG_OUTS, DATA_BUS_IN_EXTERN, ALU_OUT)
+	MUX_DATA_OUT : PROCESS (SEL_SYNC, ACC_REG, IP_reg, FG_REG, REG_OUTS, DATA_BUS_IN_EXTERN, ALU_OUT)
 	BEGIN
 		CASE SEL_SYNC IS
 			WHEN "001" =>

@@ -1,0 +1,6 @@
+vhdl work "ROM_4kx16.vhd"
+vhdl work "Reg_array.vhd"
+vhdl work "Control_Unit.vhd"
+vhdl work "ALU.vhd"
+vhdl work "CPU.vhd"
+vhdl work "CPU2.vhd"

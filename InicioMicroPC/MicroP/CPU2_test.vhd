@@ -82,22 +82,22 @@ begin
     begin
         -- Inicialización
         READY <= '1';
-        DATA_BUS_IN_EXTERN_NEXT <= X"00";  -- Cambio sincronizado en el próximo flanco de reloj
+        DATA_BUS_IN_EXTERN_NEXT <= X"10";  --instruction SUB
 
         wait for CLK_PERIOD;
-        DATA_BUS_IN_EXTERN_NEXT <= X"02";
+        DATA_BUS_IN_EXTERN_NEXT <= X"01"; --imm8
 
         wait for CLK_PERIOD;
-        DATA_BUS_IN_EXTERN_NEXT <= X"00";
+        DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --Instruction --SHL
 		  
 		  wait for CLK_PERIOD * 4;
-		  DATA_BUS_IN_EXTERN_NEXT <= X"01";
+		  DATA_BUS_IN_EXTERN_NEXT <= X"AA"; --imm8
 		  
 		   wait for CLK_PERIOD;
-        DATA_BUS_IN_EXTERN_NEXT <= X"00";
+        DATA_BUS_IN_EXTERN_NEXT <= X"A0"; --ADC
 		  
 		  wait for CLK_PERIOD * 4;
-		  DATA_BUS_IN_EXTERN_NEXT <= X"04";
+		  DATA_BUS_IN_EXTERN_NEXT <= X"00"; --imm8
 
         -- Finalizar simulación
         wait;

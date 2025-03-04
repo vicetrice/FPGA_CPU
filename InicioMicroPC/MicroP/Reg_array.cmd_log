@@ -1,0 +1,1 @@
+xst -intstyle ise -ifn "C:/Users/alvar/Documents/InicioMicroPC/MicroP/Reg_array.xst" -ofn "C:/Users/alvar/Documents/InicioMicroPC/MicroP/Reg_array.syr" 

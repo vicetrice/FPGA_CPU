@@ -14,39 +14,39 @@ entity Reg_array is
     );
 end Reg_array;
 
-architecture Behavioral of Reg_array is
-	--8 REG OF 16 BITS
-    type reg_array_type is array (0 to 7) of STD_LOGIC_VECTOR(15 downto 0);
-    signal registers: reg_array_type := (others => (others => '0'));
-
-begin
-
-    WR_RD: process(CLK)
-    begin
-        if rising_edge(CLK) then
-           --WRITE
-            if WRITE_REG = '1' and READ_REG = '0' then
-                if BYTE_SEL = '0' then
-                    registers(to_integer(unsigned(REG_SEL)))(7 downto 0) <= DATA_IN_BUS;
-                else
-                    registers(to_integer(unsigned(REG_SEL)))(15 downto 8) <= DATA_IN_BUS;
-                end if;
-				--READ
-				elsif READ_REG = '1' and WRITE_REG = '0' then
-                --READING THE BYTE
-                if BYTE_SEL = '0' then
-                    DATA_OUT_BUS <= registers(to_integer(unsigned(REG_SEL)))(7 downto 0);
-                else
-                    DATA_OUT_BUS <= registers(to_integer(unsigned(REG_SEL)))(15 downto 8);
-                end if;	
-            end if;
-				
-				 
-				
-        end if;
-    end process;
-	 
-end Behavioral;
+--architecture Behavioral of Reg_array is
+--	--8 REG OF 16 BITS
+--    type reg_array_type is array (0 to 7) of STD_LOGIC_VECTOR(15 downto 0);
+--    signal registers: reg_array_type := (others => (others => '0'));
+--
+--begin
+--
+--    WR_RD: process(CLK)
+--    begin
+--        if rising_edge(CLK) then
+--           --WRITE
+--            if WRITE_REG = '1' and READ_REG = '0' then
+--                if BYTE_SEL = '0' then
+--                    registers(to_integer(unsigned(REG_SEL)))(7 downto 0) <= DATA_IN_BUS;
+--                else
+--                    registers(to_integer(unsigned(REG_SEL)))(15 downto 8) <= DATA_IN_BUS;
+--                end if;
+--				--READ
+--				elsif READ_REG = '1' and WRITE_REG = '0' then
+--                --READING THE BYTE
+--                if BYTE_SEL = '0' then
+--                    DATA_OUT_BUS <= registers(to_integer(unsigned(REG_SEL)))(7 downto 0);
+--                else
+--                    DATA_OUT_BUS <= registers(to_integer(unsigned(REG_SEL)))(15 downto 8);
+--                end if;	
+--            end if;
+--				
+--				 
+--				
+--        end if;
+--    end process;
+--	 
+--end Behavioral;
 
 architecture Behavioral2 of Reg_array is
 	--16 REG OF 8 BITS
