@@ -30,7 +30,12 @@ PORT (
 		ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
 		DATA_BUS_IN_EXTERN: in STD_LOGIC_VECTOR(7 downto 0);
 		EXTERN_READ: out STD_LOGIC;
-		EXTERN_WRITE: out STD_LOGIC
+		EXTERN_WRITE: out STD_LOGIC;
+		
+				MIC_OUT: OUT STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0) -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
+
 	);
 end CPU2;
 
@@ -44,7 +49,11 @@ PORT (
 		DATA_BUS_IN_EXTERN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
 		EXTERN_READ: out STD_LOGIC;
 		EXTERN_WRITE: out STD_LOGIC;
-		ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+		ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)--;
+		--MIC_OUT: OUT STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+		--ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0) -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
+
 	);
 end component;
 signal internal_BUS_in: STD_LOGIC_VECTOR(7 downto 0);
@@ -61,6 +70,10 @@ CentralPU: CPU port map(
 			extern_read => extern_read,
 			extern_write => extern_write,
 			ADDRESS_BUS => ADDRESS_BUS
+			--,
+			--MIC_OUT  => MIC_OUT,-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+			--ALU_OUT_EXT => ALU_OUT_EXT
+
 );
 internal_BUS_in <= internal_BUS_OUT; 
 DATA_BUS_OUT <= internal_BUS_OUT;

@@ -33,6 +33,9 @@ ENTITY Control_Unit IS
         -- SPECIAL OUTS --
         OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
         REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
+		  
+		  --TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		  MIC_OUT: OUT STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 
         -- INS --
         CLK : IN STD_LOGIC;
@@ -55,10 +58,10 @@ ARCHITECTURE Behavioral OF Control_Unit IS
     FOR ALL : ROM_4Kx16 USE ENTITY work.ROM_4Kx16;
 
     -- Internal signals
-    SIGNAL addr : STD_LOGIC_VECTOR(11 DOWNTO 0); -- Address signal for ROM
+    SIGNAL addr : STD_LOGIC_VECTOR(11 DOWNTO 0) := (OTHERS => '0') ; -- Address signal for ROM
     SIGNAL MIC : unsigned(6 DOWNTO 0) := (OTHERS => '0'); -- Micro Instruction Counter
-    SIGNAL instruction_reg : STD_LOGIC_VECTOR(7 DOWNTO 0); -- Instruction register
-    SIGNAL CONTROL_OUT : STD_LOGIC_VECTOR(15 DOWNTO 0); -- Control signal output from ROM
+    SIGNAL instruction_reg : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0'); -- Instruction register
+    SIGNAL CONTROL_OUT : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0'); -- Control signal output from ROM
 BEGIN
 
     -- Instruction Register process (Store the instruction in the instruction register)
@@ -124,5 +127,8 @@ BEGIN
     BYTE_SEL <= CONTROL_OUT(11); -- Byte Select
     FG_WEN <= CONTROL_OUT(13); --FG register WE;
 	 INC_DEC <= CONTROL_OUT(14); --SELECT IF INC OR DEC 1:INC , 0: DEC
+	 
+	 MIC_OUT <= STD_LOGIC_VECTOR(MIC); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
 
 END Behavioral;

@@ -11,7 +11,10 @@ ENTITY CPU IS
 		DATA_BUS_IN_EXTERN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
 		EXTERN_READ : OUT STD_LOGIC;
 		EXTERN_WRITE : OUT STD_LOGIC;
-		ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)
+		ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0)--;
+		--MIC_OUT: OUT STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+		--ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0) -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
 	);
 END CPU;
 
@@ -44,12 +47,17 @@ ARCHITECTURE Behavioral OF CPU IS
 			--13: MIC RST
 			FG_WEN : OUT STD_LOGIC; --14: FG_WEN
 			INC_DEC: OUT STD_LOGIC;		--SELECT IF INC OR DEC 1:INC , 0: DEC
+			
 
 			
 
 			-- SPECIAL OUTS --
 			OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
 			REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
+			
+			--TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		  MIC_OUT: OUT STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
 
 			-- INS --
 			CLK : IN STD_LOGIC;
@@ -88,10 +96,11 @@ ARCHITECTURE Behavioral OF CPU IS
 	for all: REG_ARRAY use entity work.REG_array(Behavioral2); 
 
 	-- SPECIAL REGISTERS
-	SIGNAL ACC_REG : STD_LOGIC_VECTOR(7 DOWNTO 0);
-	SIGNAL IP_reg : STD_LOGIC_VECTOR(15 DOWNTO 0);
-	SIGNAL T_REG : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL ACC_REG : STD_LOGIC_VECTOR(7 DOWNTO 0) := (others => '0');
+	SIGNAL IP_reg : STD_LOGIC_VECTOR(15 DOWNTO 0) := (others => '0');
+	SIGNAL T_REG : STD_LOGIC_VECTOR(7 DOWNTO 0) := (others => '0');
 	SIGNAL FG_REG : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL SEL_SYNC: STD_LOGIC_VECTOR(2 downto 0) := (OTHERS => '0');
 
 	-- CONTROL SIGNALS
 
@@ -116,6 +125,7 @@ ARCHITECTURE Behavioral OF CPU IS
 	SIGNAL FG_OUT : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
 	SIGNAL ALU_OUT : STD_LOGIC_VECTOR(7 DOWNTO 0);
+
 	SIGNAL REG_OUTS : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL READ_REG : STD_LOGIC;
 
@@ -184,13 +194,19 @@ BEGIN
 
 		END IF;
 	END PROCESS;
+	
+	
+	SEL_SYNC_REG: process(CLK) 
+	begin 
+	if rising_edge(CLK) then
+		SEL_SYNC <= (REN_2 & REN_1 & REN_0);
+	end if;
+	end process;
 
 	----------------------------------------------------------------------------------------------------------------------------------
-	MUX_DATA_OUT : PROCESS (REN_0, REN_1, REN_2, ACC_REG, IP_reg, FG_REG, ALU_OUT, REG_OUTS, DATA_BUS_IN_EXTERN, ALU_OUT)
-		VARIABLE sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
+	MUX_DATA_OUT : PROCESS (SEL_SYNC, ACC_REG, IP_reg, FG_REG, ALU_OUT, REG_OUTS, DATA_BUS_IN_EXTERN, ALU_OUT)
 	BEGIN
-		sel := REN_2 & REN_1 & REN_0;
-		CASE sel IS
+		CASE SEL_SYNC IS
 			WHEN "001" =>
 				DATA_BUS_OUT <= REG_OUTS;
 			WHEN "011" =>
@@ -226,9 +242,13 @@ BEGIN
 
 		OPCODE_OUT => OPCODE_OUT,
 		REG_SEL_OUT => REG_SEL_OUT,
+		
+		--MIC_OUT => MIC_OUT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
 
 		CLK => CLK,
 		INSTRUCTION => DATA_BUS_IN,
+
 		--STATUS_REG		=> STATUS_REG,
 		READY => READY
 	);
@@ -259,5 +279,6 @@ BEGIN
 	EXTERN_WRITE <= '1' WHEN (REN_2 & REN_1 & REN_0) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)) AND RAM_WEN = '1' ELSE
 		'0';
 	ADDRESS_BUS <= IP_REG;
+	--ALU_OUT_EXT <= ALU_OUT; --SOLO TESTTTTTSSSTTSTTTST
 
 END Behavioral;
