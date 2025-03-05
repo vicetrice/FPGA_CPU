@@ -17,9 +17,11 @@ architecture behavior of tb_CPU2 is
             DATA_BUS_IN_EXTERN: in STD_LOGIC_VECTOR(7 downto 0);
             EXTERN_READ: out STD_LOGIC;
             EXTERN_WRITE: out STD_LOGIC
-				--;
-            --MIC_OUT: OUT STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-				--ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0) -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				;
+            MIC_OUT: OUT STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0)  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
 
         );
     end component;
@@ -32,8 +34,10 @@ architecture behavior of tb_CPU2 is
     signal DATA_BUS_IN_EXTERN : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
     signal EXTERN_READ : STD_LOGIC;
     signal EXTERN_WRITE : STD_LOGIC;
-    --signal MIC_OUT: STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-	 --SIGNAL ALU_OUT_EXT:  STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+    signal MIC_OUT: STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+	 SIGNAL ALU_OUT_EXT:  STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+	 SIGNAL STAT_OUT: STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
 
 
     -- Señal auxiliar para sincronización
@@ -53,9 +57,11 @@ begin
             ADDRESS_BUS => ADDRESS_BUS,
             DATA_BUS_IN_EXTERN => DATA_BUS_IN_EXTERN,
             EXTERN_READ => EXTERN_READ,
-            EXTERN_WRITE => EXTERN_WRITE--,
-           -- MIC_OUT => MIC_OUT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-				--ALU_OUT_EXT => ALU_OUT_EXT -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+            EXTERN_WRITE => EXTERN_WRITE,
+           MIC_OUT => MIC_OUT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				ALU_OUT_EXT => ALU_OUT_EXT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				STAT_OUT => STAT_OUT-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
 		  );
 
     -- Proceso de generación del reloj
@@ -85,20 +91,30 @@ begin
         DATA_BUS_IN_EXTERN_NEXT <= X"10";  --instruction SUB
 
         wait for CLK_PERIOD;
-        DATA_BUS_IN_EXTERN_NEXT <= X"01"; --imm8
+        DATA_BUS_IN_EXTERN_NEXT <= X"02"; --imm8
 
-        wait for CLK_PERIOD;
-        DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --Instruction --SHL
+			--------- TRY READY
+		  wait for CLK_PERIOD;
+		  ready <= '0';
+        --DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --Instruction --SHL
 		  
 		  wait for CLK_PERIOD * 4;
-		  DATA_BUS_IN_EXTERN_NEXT <= X"AA"; --imm8
+		  DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --instruction SHL
 		  
-		   wait for CLK_PERIOD;
-        DATA_BUS_IN_EXTERN_NEXT <= X"A0"; --ADC
+		  ready <= '1';
+		  wait for CLK_PERIOD;
+        DATA_BUS_IN_EXTERN_NEXT <= X"A0"; --instruction ADC
 		  
 		  wait for CLK_PERIOD * 4;
-		  DATA_BUS_IN_EXTERN_NEXT <= X"00"; --imm8
+		  DATA_BUS_IN_EXTERN_NEXT <= X"02"; -- SUM 2 to infinite with register 010
+		  
+		  ready <= '0';
+			
+		  wait for CLK_PERIOD * 4;
+		  
+		  ready <= '1';
 
+			
         -- Finalizar simulación
         wait;
     end process;

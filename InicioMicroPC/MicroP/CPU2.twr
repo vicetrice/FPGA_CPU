@@ -36,15 +36,15 @@ Setup/Hold to clock CLK
                      |Max Setup to|  Process   |Max Hold to |  Process   |                  | Clock  |
 Source               | clk (edge) |   Corner   | clk (edge) |   Corner   |Internal Clock(s) | Phase  |
 ---------------------+------------+------------+------------+------------+------------------+--------+
-DATA_BUS_IN_EXTERN<0>|    4.959(R)|      SLOW  |   -1.635(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_IN_EXTERN<1>|    4.652(R)|      SLOW  |   -1.465(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_IN_EXTERN<2>|    4.876(R)|      SLOW  |   -1.351(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_IN_EXTERN<3>|    4.778(R)|      SLOW  |   -1.668(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_IN_EXTERN<4>|    4.988(R)|      SLOW  |   -1.834(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_IN_EXTERN<5>|    4.972(R)|      SLOW  |   -1.908(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_IN_EXTERN<6>|    3.831(R)|      SLOW  |   -1.150(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_IN_EXTERN<7>|    4.256(R)|      SLOW  |   -1.379(R)|      FAST  |CLK_BUFGP         |   0.000|
-READY                |    2.397(R)|      SLOW  |    0.019(R)|      SLOW  |CLK_BUFGP         |   0.000|
+DATA_BUS_IN_EXTERN<0>|    6.056(R)|      SLOW  |   -2.562(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_IN_EXTERN<1>|    6.058(R)|      SLOW  |   -2.864(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_IN_EXTERN<2>|    6.177(R)|      SLOW  |   -2.794(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_IN_EXTERN<3>|    5.901(R)|      SLOW  |   -2.736(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_IN_EXTERN<4>|    6.841(R)|      SLOW  |   -2.951(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_IN_EXTERN<5>|    5.333(R)|      SLOW  |   -2.258(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_IN_EXTERN<6>|    7.177(R)|      SLOW  |   -3.408(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_IN_EXTERN<7>|    5.756(R)|      SLOW  |   -2.583(R)|      FAST  |CLK_BUFGP         |   0.000|
+READY                |    5.522(R)|      SLOW  |   -1.866(R)|      FAST  |CLK_BUFGP         |   0.000|
 ---------------------+------------+------------+------------+------------+------------------+--------+
 
 Clock CLK to Pad
@@ -52,31 +52,46 @@ Clock CLK to Pad
                |Max (slowest) clk|  Process   |Min (fastest) clk|  Process   |                  | Clock  |
 Destination    |  (edge) to PAD  |   Corner   |  (edge) to PAD  |   Corner   |Internal Clock(s) | Phase  |
 ---------------+-----------------+------------+-----------------+------------+------------------+--------+
-ADDRESS_BUS<0> |         9.588(R)|      SLOW  |         3.972(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<1> |         9.470(R)|      SLOW  |         3.913(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<2> |         8.917(R)|      SLOW  |         3.608(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<3> |         8.777(R)|      SLOW  |         3.539(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<4> |         8.737(R)|      SLOW  |         3.514(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<5> |         8.471(R)|      SLOW  |         3.361(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<6> |         8.686(R)|      SLOW  |         3.485(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<7> |         8.534(R)|      SLOW  |         3.404(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<8> |         8.312(R)|      SLOW  |         3.283(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<9> |         8.679(R)|      SLOW  |         3.468(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<10>|         8.529(R)|      SLOW  |         3.392(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<11>|         8.747(R)|      SLOW  |         3.510(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<12>|         8.534(R)|      SLOW  |         3.398(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<13>|         8.968(R)|      SLOW  |         3.629(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<14>|         8.772(R)|      SLOW  |         3.527(R)|      FAST  |CLK_BUFGP         |   0.000|
-ADDRESS_BUS<15>|         8.986(R)|      SLOW  |         3.640(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_OUT<0>|        13.379(R)|      SLOW  |         4.262(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_OUT<1>|        13.555(R)|      SLOW  |         4.045(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_OUT<2>|        14.118(R)|      SLOW  |         4.397(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_OUT<3>|        14.816(R)|      SLOW  |         4.431(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_OUT<4>|        14.184(R)|      SLOW  |         4.344(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_OUT<5>|        14.997(R)|      SLOW  |         4.058(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_OUT<6>|        14.881(R)|      SLOW  |         4.246(R)|      FAST  |CLK_BUFGP         |   0.000|
-DATA_BUS_OUT<7>|        15.484(R)|      SLOW  |         4.361(R)|      FAST  |CLK_BUFGP         |   0.000|
-EXTERN_READ    |        14.845(R)|      SLOW  |         5.100(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<0> |        10.330(R)|      SLOW  |         4.444(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<1> |        10.673(R)|      SLOW  |         4.600(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<2> |        10.506(R)|      SLOW  |         4.519(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<3> |        10.546(R)|      SLOW  |         4.559(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<4> |        10.311(R)|      SLOW  |         4.425(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<5> |        10.652(R)|      SLOW  |         4.668(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<6> |        10.893(R)|      SLOW  |         4.790(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<7> |        10.750(R)|      SLOW  |         4.742(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<8> |        10.441(R)|      SLOW  |         4.555(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<9> |        10.952(R)|      SLOW  |         4.836(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<10>|        10.704(R)|      SLOW  |         4.678(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<11>|        10.859(R)|      SLOW  |         4.826(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<12>|        10.863(R)|      SLOW  |         4.773(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<13>|        10.935(R)|      SLOW  |         4.840(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<14>|        10.767(R)|      SLOW  |         4.741(R)|      FAST  |CLK_BUFGP         |   0.000|
+ADDRESS_BUS<15>|        11.026(R)|      SLOW  |         4.887(R)|      FAST  |CLK_BUFGP         |   0.000|
+ALU_OUT_EXT<0> |        14.609(R)|      SLOW  |         5.423(R)|      FAST  |CLK_BUFGP         |   0.000|
+ALU_OUT_EXT<1> |        15.303(R)|      SLOW  |         5.485(R)|      FAST  |CLK_BUFGP         |   0.000|
+ALU_OUT_EXT<2> |        15.045(R)|      SLOW  |         5.892(R)|      FAST  |CLK_BUFGP         |   0.000|
+ALU_OUT_EXT<3> |        14.864(R)|      SLOW  |         5.455(R)|      FAST  |CLK_BUFGP         |   0.000|
+ALU_OUT_EXT<4> |        15.411(R)|      SLOW  |         5.787(R)|      FAST  |CLK_BUFGP         |   0.000|
+ALU_OUT_EXT<5> |        15.041(R)|      SLOW  |         5.619(R)|      FAST  |CLK_BUFGP         |   0.000|
+ALU_OUT_EXT<6> |        15.774(R)|      SLOW  |         5.846(R)|      FAST  |CLK_BUFGP         |   0.000|
+ALU_OUT_EXT<7> |        15.870(R)|      SLOW  |         5.633(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_OUT<0>|        17.425(R)|      SLOW  |         6.056(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_OUT<1>|        18.082(R)|      SLOW  |         5.809(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_OUT<2>|        17.001(R)|      SLOW  |         5.872(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_OUT<3>|        17.453(R)|      SLOW  |         6.350(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_OUT<4>|        17.447(R)|      SLOW  |         6.149(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_OUT<5>|        16.833(R)|      SLOW  |         5.759(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_OUT<6>|        17.599(R)|      SLOW  |         5.909(R)|      FAST  |CLK_BUFGP         |   0.000|
+DATA_BUS_OUT<7>|        18.506(R)|      SLOW  |         6.248(R)|      FAST  |CLK_BUFGP         |   0.000|
+EXTERN_READ    |        17.389(R)|      SLOW  |         6.517(R)|      FAST  |CLK_BUFGP         |   0.000|
+MIC_OUT<0>     |        11.035(R)|      SLOW  |         4.830(R)|      FAST  |CLK_BUFGP         |   0.000|
+MIC_OUT<1>     |        10.842(R)|      SLOW  |         4.760(R)|      FAST  |CLK_BUFGP         |   0.000|
+MIC_OUT<2>     |        11.198(R)|      SLOW  |         4.967(R)|      FAST  |CLK_BUFGP         |   0.000|
+MIC_OUT<3>     |        11.506(R)|      SLOW  |         5.223(R)|      FAST  |CLK_BUFGP         |   0.000|
+MIC_OUT<4>     |        10.779(R)|      SLOW  |         4.715(R)|      FAST  |CLK_BUFGP         |   0.000|
+MIC_OUT<5>     |        10.738(R)|      SLOW  |         4.678(R)|      FAST  |CLK_BUFGP         |   0.000|
+MIC_OUT<6>     |        10.563(R)|      SLOW  |         4.569(R)|      FAST  |CLK_BUFGP         |   0.000|
 ---------------+-----------------+------------+-----------------+------------+------------------+--------+
 
 Clock to Setup on destination clock CLK
@@ -84,25 +99,25 @@ Clock to Setup on destination clock CLK
                | Src:Rise| Src:Fall| Src:Rise| Src:Fall|
 Source Clock   |Dest:Rise|Dest:Rise|Dest:Fall|Dest:Fall|
 ---------------+---------+---------+---------+---------+
-CLK            |    8.814|         |         |         |
+CLK            |    7.932|         |         |         |
 ---------------+---------+---------+---------+---------+
 
 Pad to Pad
 ---------------------+---------------+---------+
 Source Pad           |Destination Pad|  Delay  |
 ---------------------+---------------+---------+
-DATA_BUS_IN_EXTERN<0>|DATA_BUS_OUT<0>|   11.161|
-DATA_BUS_IN_EXTERN<1>|DATA_BUS_OUT<1>|   10.736|
-DATA_BUS_IN_EXTERN<2>|DATA_BUS_OUT<2>|   11.310|
-DATA_BUS_IN_EXTERN<3>|DATA_BUS_OUT<3>|   11.879|
-DATA_BUS_IN_EXTERN<4>|DATA_BUS_OUT<4>|   11.686|
-DATA_BUS_IN_EXTERN<5>|DATA_BUS_OUT<5>|   12.032|
-DATA_BUS_IN_EXTERN<6>|DATA_BUS_OUT<6>|   10.501|
-DATA_BUS_IN_EXTERN<7>|DATA_BUS_OUT<7>|   11.329|
+DATA_BUS_IN_EXTERN<0>|DATA_BUS_OUT<0>|   16.399|
+DATA_BUS_IN_EXTERN<1>|DATA_BUS_OUT<1>|   16.033|
+DATA_BUS_IN_EXTERN<2>|DATA_BUS_OUT<2>|   15.659|
+DATA_BUS_IN_EXTERN<3>|DATA_BUS_OUT<3>|   16.192|
+DATA_BUS_IN_EXTERN<4>|DATA_BUS_OUT<4>|   17.098|
+DATA_BUS_IN_EXTERN<5>|DATA_BUS_OUT<5>|   15.353|
+DATA_BUS_IN_EXTERN<6>|DATA_BUS_OUT<6>|   16.970|
+DATA_BUS_IN_EXTERN<7>|DATA_BUS_OUT<7>|   16.084|
 ---------------------+---------------+---------+
 
 
-Analysis completed Tue Mar 04 19:59:05 2025 
+Analysis completed Wed Mar 05 14:05:12 2025 
 --------------------------------------------------------------------------------
 
 Trace Settings:
