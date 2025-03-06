@@ -18,9 +18,10 @@ architecture behavior of tb_CPU2 is
             EXTERN_READ: out STD_LOGIC;
             EXTERN_WRITE: out STD_LOGIC
 				;
-            MIC_OUT: OUT STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+            ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-				STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0)  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 
 
         );
@@ -34,9 +35,11 @@ architecture behavior of tb_CPU2 is
     signal DATA_BUS_IN_EXTERN : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
     signal EXTERN_READ : STD_LOGIC;
     signal EXTERN_WRITE : STD_LOGIC;
-    signal MIC_OUT: STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+    signal ROM_ADDR_OUT: STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 SIGNAL ALU_OUT_EXT:  STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 SIGNAL STAT_OUT: STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+	 signal 		REG_SEL_OUT_CPU :  STD_LOGIC_VECTOR(2 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
 
 
 
@@ -58,9 +61,11 @@ begin
             DATA_BUS_IN_EXTERN => DATA_BUS_IN_EXTERN,
             EXTERN_READ => EXTERN_READ,
             EXTERN_WRITE => EXTERN_WRITE,
-           MIC_OUT => MIC_OUT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+           ROM_ADDR_OUT => ROM_ADDR_OUT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				ALU_OUT_EXT => ALU_OUT_EXT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-				STAT_OUT => STAT_OUT-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				STAT_OUT => STAT_OUT,-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				REG_SEL_OUT_CPU  => REG_SEL_OUT_CPU-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
 
 		  );
 
@@ -88,7 +93,7 @@ begin
     begin
         -- Inicialización
         READY <= '1';
-        DATA_BUS_IN_EXTERN_NEXT <= X"10";  --instruction SUB
+        DATA_BUS_IN_EXTERN_NEXT <= X"10";  --instruction SUB to REG 0
 
         wait for CLK_PERIOD;
         DATA_BUS_IN_EXTERN_NEXT <= X"02"; --imm8
@@ -96,23 +101,22 @@ begin
 			--------- TRY READY
 		  wait for CLK_PERIOD;
 		  ready <= '0';
-        --DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --Instruction --SHL
+        --DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --Instruction SHL
 		  
 		  wait for CLK_PERIOD * 4;
-		  DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --instruction SHL
+		  DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --instruction SHL to REG 0
 		  
 		  ready <= '1';
 		  wait for CLK_PERIOD;
-        DATA_BUS_IN_EXTERN_NEXT <= X"A0"; --instruction ADC
+        DATA_BUS_IN_EXTERN_NEXT <= X"A9"; --instruction ADC to reg 001 (dst) with reg 000(src)
 		  
 		  wait for CLK_PERIOD * 4;
-		  DATA_BUS_IN_EXTERN_NEXT <= X"02"; -- SUM 2 to infinite with register 010
+		  DATA_BUS_IN_EXTERN_NEXT <= X"A8";
 		  
-		  ready <= '0';
+		 
 			
-		  wait for CLK_PERIOD * 4;
+		 -- wait for CLK_PERIOD * 4;
 		  
-		  ready <= '1';
 
 			
         -- Finalizar simulación

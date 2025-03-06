@@ -14,8 +14,9 @@ ENTITY CPU IS
 		ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
 		
 		
-		MIC_OUT : OUT STD_LOGIC_VECTOR(6 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+		ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		ALU_OUT_EXT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+		REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0)
 
 	);
@@ -41,7 +42,7 @@ ARCHITECTURE Behavioral OF CPU IS
 			REN_1 : OUT STD_LOGIC; -- 4: Accumulator read enable  (used to multiplex reading)
 			ACC_WEN : OUT STD_LOGIC; -- 5: Accumulator write enable  
 			TREG_EN : OUT STD_LOGIC; -- 6: Temporary Register enable  
-			FREE_USE : OUT STD_LOGIC; -- 7: FREE_USE  
+			IR_REG_SEL_BYTE : OUT STD_LOGIC; -- 7: IR_REG_SEL_BYTE
 			INC_DEC_EN : OUT STD_LOGIC; -- 8: Instruction Pointer increment/decrement control  
 			IP_WEN : OUT STD_LOGIC; -- 9: Instruction Pointer Write enable  
 			REN_2 : OUT STD_LOGIC; -- 10:  (used to multiplex reading)
@@ -57,7 +58,7 @@ ARCHITECTURE Behavioral OF CPU IS
 			REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
 
 			--TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			MIC_OUT : OUT STD_LOGIC_VECTOR(6 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+			ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 			-- INS --
 			CLK : IN STD_LOGIC;
 			INSTRUCTION : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -109,7 +110,7 @@ ARCHITECTURE Behavioral OF CPU IS
 	SIGNAL REN_1 : STD_LOGIC; -- 4: (used to multiplex reading)
 	SIGNAL ACC_WEN : STD_LOGIC; -- 5: Accumulator write enable  
 	SIGNAL TREG_EN : STD_LOGIC; -- 6: Temporary Register enable  
-	SIGNAL FREE_USE : STD_LOGIC; -- 7: FREE_USE  
+	SIGNAL IR_REG_SEL_BYTE : STD_LOGIC; -- 7: IR_REG_SEL_BYTE  
 	SIGNAL INC_DEC_EN : STD_LOGIC; -- 8: Instruction Pointer increment/decrement control  
 	SIGNAL IP_WEN : STD_LOGIC; -- 9: Instruction Pointer Write enable  
 	SIGNAL REN_2 : STD_LOGIC; -- 10: (used to multiplex reading)
@@ -239,7 +240,7 @@ BEGIN
 		REN_1 => REN_1,
 		ACC_WEN => ACC_WEN,
 		TREG_EN => TREG_EN,
-		FREE_USE => FREE_USE,
+		IR_REG_SEL_BYTE => IR_REG_SEL_BYTE,
 		INC_DEC_EN => INC_DEC_EN,
 		IP_WEN => IP_WEN,
 		REN_2 => REN_2,
@@ -251,7 +252,7 @@ BEGIN
 		OPCODE_OUT => OPCODE_OUT,
 		REG_SEL_OUT => REG_SEL_OUT,
 
-		MIC_OUT => MIC_OUT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+		ROM_ADDR_OUT => ROM_ADDR_OUT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		CLK => CLK,
 		INSTRUCTION => DATA_BUS_IN,
 
@@ -287,5 +288,6 @@ BEGIN
 	ADDRESS_BUS <= IP_REG;
 	ALU_OUT_EXT <= ALU_OUT; --SOLO TESTTTTTSSSTTSTTTST
 	STAT_OUT <= FG_REG; --SOLO TESSTSTSTT;
+	REG_SEL_OUT_CPU<= REG_SEL_OUT ;--SOLO TESSTSTSTT;
 
 END Behavioral;

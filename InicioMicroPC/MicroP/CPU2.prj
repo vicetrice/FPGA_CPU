@@ -1,4 +1,4 @@
-vhdl work "ROM_4kx16.vhd"
+vhdl work "ROM_256x24.vhd"
 vhdl work "Reg_array.vhd"
 vhdl work "Control_Unit.vhd"
 vhdl work "ALU.vhd"

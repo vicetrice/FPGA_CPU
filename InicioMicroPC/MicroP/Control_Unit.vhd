@@ -12,6 +12,7 @@ ENTITY Control_Unit IS
     -- 100: FLAGS
     -- 101: PC
     -- 110: ALU
+	 --TODO: FIX BYTE_SEL, MAYBE ADD MORE CONTROL SIGNALS 
     PORT (
         -- CONTROL SIGNAL OUT --
         --1: Instruction register WE
@@ -20,7 +21,7 @@ ENTITY Control_Unit IS
         REN_1 : OUT STD_LOGIC; -- 4:   (used to multiplex reading)
         ACC_WEN : OUT STD_LOGIC; -- 5: Accumulator write enable  
         TREG_EN : OUT STD_LOGIC; -- 6: Temporary Register enable  
-        FREE_USE : OUT STD_LOGIC; -- 7: FREE_USE   
+        IR_REG_SEL_BYTE : OUT STD_LOGIC; -- 7: Select which byte of the 16-bit IR to use for register selection 0: LSB, 1:MSB.   
         INC_DEC_EN : OUT STD_LOGIC; -- 8: Instruction Pointer increment/decrement control  
         IP_WEN : OUT STD_LOGIC; -- 9: Instruction Pointer Write enable  
         REN_2 : OUT STD_LOGIC; -- 10: (used to multiplex reading)
@@ -28,20 +29,20 @@ ENTITY Control_Unit IS
         BYTE_SEL : OUT STD_LOGIC; -- 12: BYTE SELECT  
         --13: MIC RST
         FG_WEN : OUT STD_LOGIC; --14: FG_WEN
-		  INC_DEC: OUT STD_LOGIC;		--15: SELECT IF INC OR DEC 1:INC , 0: DEC
-		  FG_SEL_IN: OUT STD_LOGIC; --16: SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS
-
+        INC_DEC : OUT STD_LOGIC; --15: SELECT IF INC OR DEC 1:INC , 0: DEC
+        FG_SEL_IN : OUT STD_LOGIC; --16: SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS, it works as byte select for reg when ALU op
+		 	--17: BYTE SELECT FOR INSTRUCTION REGISTER
         -- SPECIAL OUTS --
         OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
         REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
-		  
-		  --TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		  MIC_OUT: OUT STD_LOGIC_VECTOR(6 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+
+        --TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 
         -- INS --
         CLK : IN STD_LOGIC;
         INSTRUCTION : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-		  --RST: in STD_LOGIC;
+        --RST: in STD_LOGIC;
         --STATUS_REG: in STD_LOGIC_VECTOR(7 downto 0);
         READY : IN STD_LOGIC
     );
@@ -50,20 +51,20 @@ END Control_Unit;
 ARCHITECTURE Behavioral OF Control_Unit IS
 
     -- Declaration of ROM component
-    COMPONENT ROM_4Kx16
+    COMPONENT ROM_256x24
         PORT (
-            address : IN STD_LOGIC_VECTOR(11 DOWNTO 0); -- 12-bit address (4K words)
-            data_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0) -- 16-bit output
+            address : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- 12-bit address (4K words)
+            data_out : OUT STD_LOGIC_VECTOR(23 DOWNTO 0) -- 16-bit output
         );
     END COMPONENT;
 
-    FOR ALL : ROM_4Kx16 USE ENTITY work.ROM_4Kx16;
+    FOR ALL : ROM_256x24 USE ENTITY work.ROM_256x24;
 
     -- Internal signals
-    SIGNAL addr : STD_LOGIC_VECTOR(11 DOWNTO 0) := (OTHERS => '0') ; -- Address signal for ROM
-    SIGNAL MIC : unsigned(6 DOWNTO 0) := (OTHERS => '0'); -- Micro Instruction Counter
-    SIGNAL instruction_reg : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0'); -- Instruction register
-    SIGNAL CONTROL_OUT : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0'); -- Control signal output from ROM
+    SIGNAL addr : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0'); -- Address signal for ROM
+    SIGNAL MIC : unsigned(3 DOWNTO 0) := (OTHERS => '0'); -- Micro Instruction Counter
+    SIGNAL instruction_reg : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0'); -- Instruction register
+    SIGNAL CONTROL_OUT : STD_LOGIC_VECTOR(23 DOWNTO 0) := (OTHERS => '0'); -- Control signal output from ROM
 BEGIN
 
     -- Instruction Register process (Store the instruction in the instruction register)
@@ -71,7 +72,11 @@ BEGIN
     BEGIN
         IF rising_edge(CLK) THEN
             IF CONTROL_OUT(0) = '1' THEN
-                instruction_reg <= INSTRUCTION; -- Store incoming instruction
+                IF CONTROL_OUT(16) = '1' THEN
+                    instruction_reg(15 DOWNTO 8) <= INSTRUCTION; -- (SRC)
+                ELSE
+                    instruction_reg(7 DOWNTO 0) <= INSTRUCTION; -- (DST)
+                END IF;
             END IF;
         END IF;
     END PROCESS;
@@ -79,14 +84,14 @@ BEGIN
     -- Micro Instruction Counter process
     MI_COUNT : PROCESS (CLK)
     BEGIN
-        IF rising_edge(CLK) then
-		  if(READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) THEN
-            IF CONTROL_OUT(12) = '0' THEN -- If bit 12 of CONTROL_OUT is '0'
-                MIC <= MIC + 1; -- Increment the micro instruction counter
-            ELSE
-                MIC <=to_unsigned(1,7); 
+        IF rising_edge(CLK) THEN
+            IF (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) THEN
+                IF CONTROL_OUT(12) = '0' THEN -- If bit 12 of CONTROL_OUT is '0'
+                    MIC <= MIC + 1; -- Increment the micro instruction counter
+                ELSE
+                    MIC <= to_unsigned(1, 4);
+                END IF;
             END IF;
-			end if;
         END IF;
     END PROCESS;
 
@@ -98,44 +103,75 @@ BEGIN
 
     BEGIN
         -- Extract opcode, immediate or register bit, and register selection from the instruction
-        opcode := instruction_reg(7 DOWNTO 4);
-        imm_or_reg := instruction_reg(3);
-        reg_sel := instruction_reg(2 DOWNTO 0);
         -- Construct the address for the microcode ROM
         -- Concatenate opcode, imm_or_reg, and MIC to form the address (12 bits)
+		  
+		      opcode := instruction_reg(7 DOWNTO 4);
+            imm_or_reg := instruction_reg(3);
+            reg_sel := instruction_reg(2 DOWNTO 0);
+
         IF (opcode = X"0" OR opcode = X"1" OR opcode = X"2" OR opcode = X"3" OR
             opcode = X"4" OR opcode = X"5" OR opcode = X"A" OR opcode = X"C" OR opcode = X"D") THEN
-            addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); -- Address formed by opcode, imm_or_reg, and MIC
+            addr <= "000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); -- Address formed by opcode, imm_or_reg, and MIC
         ELSE
-            addr <= reg_sel & "000000000"; -- Set address to 0 in case opcode is not recognized
+            addr <= reg_sel & "00000"; -- Set address to 0 in case opcode is not recognized
         END IF;
 
         -- Assign values to output signals
-        OPCODE_OUT <= opcode;
-        REG_SEL_OUT <= reg_sel;
     END PROCESS;
+	 
+	 process(CONTROL_OUT(6), instruction_reg)
+	  VARIABLE opcode : STD_LOGIC_VECTOR(3 DOWNTO 0);
+        VARIABLE reg_sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
+	 begin
+	 
+	 IF CONTROL_OUT(6) = '0' THEN
+            opcode := instruction_reg(7 DOWNTO 4);
+            reg_sel := instruction_reg(2 DOWNTO 0);
+        ELSE
+            opcode := instruction_reg(15 DOWNTO 12);
+            reg_sel := instruction_reg(10 DOWNTO 8);
+        END IF;
+		  
+		   OPCODE_OUT <= opcode;
+        REG_SEL_OUT <= reg_sel;
+	
+	 
+	 
+	 
+	 
+	 end process;
     -- ROM instantiation and connection
-    U0 : ROM_4Kx16 PORT MAP(addr, CONTROL_OUT);
+    U0 : ROM_256x24 PORT MAP(addr, CONTROL_OUT);
+    REN_0 <= CONTROL_OUT(1) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- multiplex read
+    REG_ARR_WEN <= CONTROL_OUT(2) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- Register Array Write Enable
+    REN_1 <= CONTROL_OUT(3) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- multiplex read
+    ACC_WEN <= CONTROL_OUT(4) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- Accumulator Write Enable
+    TREG_EN <= CONTROL_OUT(5) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- Temporary Register Enable
+    IR_REG_SEL_BYTE <= CONTROL_OUT(6) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- IR_REG_SEL_BYTE 
+    INC_DEC_EN <= CONTROL_OUT(7) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- Instruction Pointer Increment/Decrement
+    IP_WEN <= CONTROL_OUT(8) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- Instruction Pointer Enable
+    REN_2 <= CONTROL_OUT(9) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- multiplex read
+    RAM_WEN <= CONTROL_OUT(10) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- RAM Write Enable
+    BYTE_SEL <= CONTROL_OUT(11) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; -- Byte Select
+    FG_WEN <= CONTROL_OUT(13) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; --FG register WE;
+    INC_DEC <= CONTROL_OUT(14) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; --SELECT IF INC OR DEC 1:INC , 0: DEC
+    FG_SEL_IN <= CONTROL_OUT(15) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0'; --SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS
 
-    -- Assign control signals based on the ROM output
-    REN_0 <= CONTROL_OUT(1) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- multiplex read
-    REG_ARR_WEN <= CONTROL_OUT(2) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- Register Array Write Enable
-    REN_1 <= CONTROL_OUT(3) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- multiplex read
-    ACC_WEN <= CONTROL_OUT(4) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- Accumulator Write Enable
-    TREG_EN <= CONTROL_OUT(5) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- Temporary Register Enable
-    FREE_USE <= CONTROL_OUT(6) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- FREE_USE 
-    INC_DEC_EN <= CONTROL_OUT(7) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- Instruction Pointer Increment/Decrement
-    IP_WEN <= CONTROL_OUT(8) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- Instruction Pointer Enable
-    REN_2 <= CONTROL_OUT(9) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- multiplex read
-    RAM_WEN <= CONTROL_OUT(10) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- RAM Write Enable
-    BYTE_SEL <= CONTROL_OUT(11) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; -- Byte Select
-    FG_WEN <= CONTROL_OUT(13) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; --FG register WE;
-	 INC_DEC <= CONTROL_OUT(14) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; --SELECT IF INC OR DEC 1:INC , 0: DEC
-	 FG_SEL_IN <= CONTROL_OUT(15) when (READY /= '0' or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) else '0' ; --SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS
-
+    ROM_ADDR_OUT <= addr; -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 
-	 
-	 MIC_OUT <= STD_LOGIC_VECTOR(MIC); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-
-
 END Behavioral;

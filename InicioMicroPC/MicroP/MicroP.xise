@@ -39,10 +39,6 @@
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="3"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="3"/>
     </file>
-    <file xil_pn:name="ROM_4kx16.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="1"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="1"/>
-    </file>
     <file xil_pn:name="CU_test.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="0"/>
       <association xil_pn:name="PostMapSimulation" xil_pn:seqID="45"/>
@@ -66,6 +62,10 @@
       <association xil_pn:name="PostMapSimulation" xil_pn:seqID="116"/>
       <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="116"/>
       <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="116"/>
+    </file>
+    <file xil_pn:name="ROM_256x24.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="185"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="1"/>
     </file>
   </files>
 
