@@ -38,41 +38,43 @@ are not marked with this symbol they will not affect in any way this flag.
 	R3		(0x3) : GP register 		(LSB 3 reg) 	0		011
 	R4		(0x4) : GP register 		(LSB 4 reg) 	0		100
 	R5		(0x5) : GP register 		(LSB 5 reg) 	0		101
-	FG		(0x6) : FLAGS register  	(6 reg)     	X		110
+	R6		(0x6) : GP register  		(LSB 6 reg)     0		110
 	SP		(0x7) : Stack Pointer		(7 reg)	    	X		111
 
 *Separated register for PC, will only be changed with jnz instruction.
-*FG register have only 8 bits, but can be loaded with 16 bits with LDA,
-the use of any other instruction will change the flags stored but LDA with FG will
-use a extra register and it will not change the flags use in the ALU.
+*FG register can only be changed by the ALU.
 *Calling convention
 	*R0-R6, SP, FG for arguments.
 	*BYTE_SEL is controlled by the CU.
 	
 === Microcode === 
-4kib x 16b ROM
-0x000...0xF00
-where most significant HEX is Opcode
+256 x 24b ROM
+0x00...0FF
 
-Max 256 microinstructions per opcode
+address Layout is XXXYZZZZ where:
+X: 3-bit used for encoded opcode, since all ALU op do the same they are encoded as "000";
+Y: 0 if argumment is imm, 1 if argument is reg.
+Z: 4 bits used for MIC.
+
+Max 16 microinstructions per opcode and imm/reg arg.
 
 === Instruction layout (Explicitly copied from jdh, see channel in youtube) ===
 
 Instruction layout is XXXXYZZZ where
 X: 4-bit instruction identifier (see Instructions section)
 Y: 0 if argument is imm(8/16), 1 if argument is reg
-Z: 3-bit register identifier of first register argument  (see Registers section)
+Z: 3-bit register identifier of DST register (see Registers section)
 
-* instructions with reg: reg arguments have the second register encoded in the
-  first three bits of the second instruction byte.
+* instructions with reg: reg arguments have the SRC register encoded in the
+  first three bits of the second instruction byte and the other bits are the same of the first byte.
 * For LDA/STR, the Y-bit indicates imm16 (0) and full reg (1). Z-bits are ALWAYS reg.
 * Instructions can be 1-3 bytes long
     * PUSH/POP with one register argument are one byte instructions
     * LDR/STR with Y=0 (imm16) are 3 bytes each.
     * LDA is always 3 bytes.
 
-=== Status register layout ===
-Status register layout is ------ZC where
+=== Flag register layout ===
+Flag register layout is ------ZC where
 C: set to 1 if an operation produces a carry or borrow or overflow (ADD/ADC/SUBB/SUB/SHR/SHL).
 Z: set to 1 if the result of the operation is zero.
 -: Not used.

@@ -12,7 +12,7 @@ ENTITY Control_Unit IS
     -- 100: FLAGS
     -- 101: PC
     -- 110: ALU
-	 --TODO: FIX BYTE_SEL, MAYBE ADD MORE CONTROL SIGNALS 
+    --TODO: FIX BYTE_SEL, MAYBE ADD MORE CONTROL SIGNALS 
     PORT (
         -- CONTROL SIGNAL OUT --
         --1: Instruction register WE
@@ -31,8 +31,8 @@ ENTITY Control_Unit IS
         FG_WEN : OUT STD_LOGIC; --14: FG_WEN
         INC_DEC : OUT STD_LOGIC; --15: SELECT IF INC OR DEC 1:INC , 0: DEC
         FG_SEL_IN : OUT STD_LOGIC; --16: SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS, it works as byte select for reg when ALU op
-		 	--17: BYTE SELECT FOR INSTRUCTION REGISTER
-			BYTE_SEL_IP: OUT STD_LOGIC;--18: SELECT A BYTE FROM IP: 0: LSB, 1:MSB
+        --17: BYTE SELECT FOR INSTRUCTION REGISTER
+        BYTE_SEL_IP : OUT STD_LOGIC;--18: SELECT A BYTE FROM IP: 0: LSB, 1:MSB
         -- SPECIAL OUTS --
         OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
         REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
@@ -97,6 +97,7 @@ BEGIN
     END PROCESS;
 
     -- Control logic process to generate the address and control signals
+    -- Control logic process to generate the address and control signals
     CL : PROCESS (instruction_reg, MIC)
         VARIABLE opcode : STD_LOGIC_VECTOR(3 DOWNTO 0);
         VARIABLE imm_or_reg : STD_LOGIC;
@@ -106,42 +107,39 @@ BEGIN
         -- Extract opcode, immediate or register bit, and register selection from the instruction
         -- Construct the address for the microcode ROM
         -- Concatenate opcode, imm_or_reg, and MIC to form the address (12 bits)
-		  
-		      opcode := instruction_reg(7 DOWNTO 4);
-            imm_or_reg := instruction_reg(3);
-            reg_sel := instruction_reg(2 DOWNTO 0);
 
-        IF (opcode = X"0" OR opcode = X"1" OR opcode = X"2" OR opcode = X"3" OR
-            opcode = X"4" OR opcode = X"5" OR opcode = X"A" OR opcode = X"C" OR opcode = X"D") THEN
-            addr <= "000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); -- Address formed by opcode, imm_or_reg, and MIC
-        ELSE
-            addr <= reg_sel & "00000"; -- Set address to 0 in case opcode is not recognized
-        END IF;
+        opcode := instruction_reg(7 DOWNTO 4);
+        imm_or_reg := instruction_reg(3);
+        reg_sel := instruction_reg(2 DOWNTO 0);
+
+        -- Use a case statement to handle all opcodes and set address accordingly
+        CASE opcode IS
+            WHEN X"6" =>
+                addr <= "001" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --MOV OP
+				WHEN others =>
+                addr <= "000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP
+
+            END CASE;
 
         -- Assign values to output signals
     END PROCESS;
-	 
-	 process(CONTROL_OUT(6), instruction_reg)
-	  VARIABLE opcode : STD_LOGIC_VECTOR(3 DOWNTO 0);
+    PROCESS (CONTROL_OUT(6), instruction_reg)
+        VARIABLE opcode : STD_LOGIC_VECTOR(3 DOWNTO 0);
         VARIABLE reg_sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
-	 begin
-	 
-	 IF CONTROL_OUT(6) = '0' THEN
+    BEGIN
+
+        IF CONTROL_OUT(6) = '0' THEN
             opcode := instruction_reg(7 DOWNTO 4);
             reg_sel := instruction_reg(2 DOWNTO 0);
         ELSE
             opcode := instruction_reg(15 DOWNTO 12);
             reg_sel := instruction_reg(10 DOWNTO 8);
         END IF;
-		  
-		   OPCODE_OUT <= opcode;
+
+        OPCODE_OUT <= opcode;
         REG_SEL_OUT <= reg_sel;
-	
-	 
-	 
-	 
-	 
-	 end process;
+
+    END PROCESS;
     -- ROM instantiation and connection
     U0 : ROM_256x24 PORT MAP(addr, CONTROL_OUT);
     REN_0 <= CONTROL_OUT(1) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
@@ -172,8 +170,8 @@ BEGIN
         '0'; --SELECT IF INC OR DEC 1:INC , 0: DEC
     FG_SEL_IN <= CONTROL_OUT(15) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
         '0'; --SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS
-	 BYTE_SEL_IP <= CONTROL_OUT(17);
-	 
+    BYTE_SEL_IP <= CONTROL_OUT(17);
+
     ROM_ADDR_OUT <= addr; -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-	 
+
 END Behavioral;

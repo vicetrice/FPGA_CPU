@@ -18,11 +18,28 @@ architecture Behavioral of RAM_64Kx8 is
     signal RAM : RAM_Array := (
 	 
 	 --PROGRAM
-	 16#0000# =>  X"10",
-	 16#0001# =>  X"02",
-	 16#0002# =>  X"C0",
-	 16#0004# =>  X"A9",
-	 16#0005# =>  X"A8",
+	 16#0000# =>  X"10",-- SUB TO REG 0 INST (IMM8)
+	 16#0001# =>  X"02",-- IMM, VAL = 0x02
+	 
+	 16#0002# =>  X"C0",-- SHL REG 0 INST
+	 16#0003# =>  X"00",-- NOT USED
+	 
+	 16#0004# =>  X"A9",-- ADC TO REG 1 INST (REG)
+	 16#0005# =>  X"A8",-- REG 2
+	 
+	 16#0006# =>  X"62",-- MOV TO REG 2 (IMM8)
+	 16#0007# =>  X"0F",-- IMM, VAL = 0x0F
+	 
+	 16#0008# =>  X"0B",-- ADD TO REG 3 INST (REG)
+	 16#0009# =>  X"0A",-- REG 2
+	 
+	 16#000A# => X"6C", --MOV TO REG 4 INST (REG)
+	 16#000B# => X"6B", --REG 3
+	 
+	 16#000C# => X"04", --ADD TO REG 4 INST (IMM8)
+	 16#000D# => X"00", --IMM, VAL = 0x00
+
+
 	 
 	 others => (others => '0'));  -- Inicialización en ceros
 begin

@@ -29,6 +29,19 @@ architecture Behavioral of ROM_256x24 is
 				16#13# => X"000052", --EXC
 				16#14# => X"000228", --EXC
 				16#15# => X"00709C", --FETCH & SAVE
+				
+				--MOV IMM8 MICROCODE
+				16#20# => X"004088", --INITIAL FETCH
+				16#21# => X"004089", --DECODE
+				16#22# => X"00508C", --FETCH & SAVE/EXC
+				
+				--MOV REG MICROCODE ( TODO ??? : CAN BE OPTIMIZED IF SRC REG GOES FIRST)
+				16#30# => X"004088", --INITIAL FETCH
+				16#31# => X"004089", --DECODE
+				16#32# => X"010001", --EXC
+				16#33# => X"000042", --EXC
+				16#34# => X"00508C", --FETCH & SAVE
+				
         -- ...
         others => x"000000"  -- Default values
     );
