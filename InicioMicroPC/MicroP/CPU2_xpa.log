@@ -1,46 +1,0 @@
-Creating log file C:\Users\alvar\Documents\InicioMicroPC\MicroP\CPU2_xpa.log.
-Loading device for application Rf_Device from file '6slx16.nph' in environment
-C:\Xilinx\14.7\ISE_DS\ISE\.
-   "CPU2" is an NCD, version 3.2, device xc6slx16, package ftg256, speed -2
-
-INFO:Power:1693 - 
-   --------------------------------------------------------------
-                         The power estimate will be calculated using PRODUCTION
-   data.
-   --------------------------------------------------------------
-
-Design load 20% completeDesign load 25% completeDesign load 30% completeDesign load 60% completeDesign load 95% completeDesign load 100% completeRunning Vector-less Activity Propagation
-......
-Finished Running Vector-less Activity Propagation
-Finished Running Vector-less Activity Propagation 0 secs 
-WARNING:Power:1337 - Clock frequency for clock net "CLK_BUFGP" is zero.
-WARNING:Power:1337 - Clock frequency for clock net "CLK_BUFGP/IBUFG" is zero.
-WARNING:Power:1369 - Clock frequency for one or more clocks was not found through
-   timing constraints (PCF file) or simulation data.  Without knowing the
-   clock frequency of all clocks, dynamic power information for those clock
-   domains will default to zero which may under-estimate the power for this
-   design.  To avoid this warning, provide at least one of the following:
-     1. The proper timing constraints (PERIOD) for clocks (re-implement design
-        and load the newly generated PCF file into XPower Analyzer)
-     2. A post PAR simulation-generated VCD or SAIF file indicating clock
-        frequencies
-     3. The clock frequency for clocks in the "By Type -> Clocks" view in the
-        XPower Analyzer GUI and then applying "Update Power Analysis"
-
-Design 'CPU2.ncd' and constraints 'CPU2.pcf' opened successfully
-
-
-Updating power analysis...
-WARNING:Power:91 - Can't change frequency of net CentralPU/ACC_WEN_GND_5_o_AND_4_o to 1.00Mhz.
-WARNING:Power:91 - Can't change frequency of net CentralPU/CU/CONTROL_OUT<0> to 1.00Mhz.
-WARNING:Power:91 - Can't change frequency of net CentralPU/CU/READY_GND_6_o_OR_3_o to 1.00Mhz.
-WARNING:Power:91 - Can't change frequency of net CentralPU/CU/_n0098 to 1.00Mhz.
-WARNING:Power:91 - Can't change frequency of net CentralPU/INC_DEC_EN to 1.00Mhz.
-WARNING:Power:91 - Can't change frequency of net CentralPU/READ_REG to 1.00Mhz.
-WARNING:Power:91 - Can't change frequency of net CentralPU/REGISTERS/WRITE_REG_READ_REG_AND_12_o to 1.00Mhz.
-WARNING:Power:91 - Can't change frequency of net CentralPU/REN_0 to 1.00Mhz.
-Running Vector-less Activity Propagation
-..........
-Finished Running Vector-less Activity Propagation
-Finished Running Vector-less Activity Propagation 0 secs 
-Update Power Analysis is complete.

@@ -1,8 +1,0 @@
-INTSTYLE=ise
-INFILE=C:\Users\alvar\Documents\InicioMicroPC\MicroP\ALU.ncd
-OUTFILE=C:\Users\alvar\Documents\InicioMicroPC\MicroP\ALU.bit
-FAMILY=Spartan6
-PART=xc6slx16-2ftg256
-WORKINGDIR=C:\Users\alvar\Documents\InicioMicroPC\MicroP
-LICENSE=WebPack
-USER_INFO=213223654_0_0_518

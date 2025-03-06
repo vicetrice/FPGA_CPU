@@ -1,1 +1,0 @@
--intstyle "ise" -incremental -lib "secureip" -o "C:/Users/alvar/Documents/InicioMicroPC/MicroP/Demux_isim_beh.exe" -prj "C:/Users/alvar/Documents/InicioMicroPC/MicroP/Demux_beh.prj" "work.Demux" 
