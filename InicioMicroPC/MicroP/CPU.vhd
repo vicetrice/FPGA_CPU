@@ -188,12 +188,12 @@ BEGIN
 	BEGIN
 		IF rising_edge(CLK) and FG_WEN = '1' THEN
 			sel := REN_2 & REN_1 & REN_0;
-			if FG_SEL_IN = '1' then
 				IF sel /= "100" THEN
+					if FG_SEL_IN = '1' then
 					FG_REG <= DATA_BUS_IN;
-				end if;
-			ELSE
+					ELSE
 					FG_REG <= FG_OUT;
+				end if;
 			END IF;
 		END IF;
 	END PROCESS;

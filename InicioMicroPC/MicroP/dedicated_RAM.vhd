@@ -15,7 +15,16 @@ end RAM_64Kx8;
 
 architecture Behavioral of RAM_64Kx8 is
     type RAM_Array is array (0 to 65535) of std_logic_vector(7 downto 0);
-    signal RAM : RAM_Array := (others => (others => '0'));  -- Inicialización en ceros
+    signal RAM : RAM_Array := (
+	 
+	 --PROGRAM
+	 16#0000# =>  X"10",
+	 16#0001# =>  X"02",
+	 16#0002# =>  X"C0",
+	 16#0004# =>  X"A9",
+	 16#0005# =>  X"A8",
+	 
+	 others => (others => '0'));  -- Inicialización en ceros
 begin
     process (clk)
     begin

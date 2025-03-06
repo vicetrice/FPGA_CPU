@@ -26,6 +26,17 @@ architecture behavior of tb_CPU2 is
 
         );
     end component;
+	 
+	 component RAM_64Kx8 
+    Port (
+        clk     : in  std_logic;                           -- Reloj
+        we      : in  std_logic;                           -- Habilitación de escritura
+        re      : in  std_logic;                           -- Habilitación de lectura
+        address : in  std_logic_vector(15 downto 0);       -- Dirección de memoria (64K posiciones)
+        data_out : out std_logic_vector(7 downto 0);    
+		  data_in : in std_logic_vector(7 downto 0)      
+    );
+	end component;
 
     -- Signals
     signal CLK : STD_LOGIC := '0';
@@ -38,7 +49,7 @@ architecture behavior of tb_CPU2 is
     signal ROM_ADDR_OUT: STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 SIGNAL ALU_OUT_EXT:  STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 SIGNAL STAT_OUT: STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-	 signal 		REG_SEL_OUT_CPU :  STD_LOGIC_VECTOR(2 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+	 signal REG_SEL_OUT_CPU :  STD_LOGIC_VECTOR(2 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 
 
 
@@ -50,7 +61,8 @@ architecture behavior of tb_CPU2 is
     constant CLK_PERIOD : time := 10 ns;
 
 begin
-
+		
+		READY <= '1';
     -- Instancia de CPU2
     uut: CPU2
         port map (
@@ -68,6 +80,15 @@ begin
 
 
 		  );
+		  
+	RAM:   RAM_64Kx8 Port  map (
+        clk     => CLK,                           -- Reloj
+        we      => EXTERN_WRITE,                           -- Habilitación de escritura
+        re      => EXTERN_READ,                           -- Habilitación de lectura
+        address => ADDRESS_BUS,       -- Dirección de memoria (64K posiciones)
+        data_out => DATA_BUS_IN_EXTERN,
+		  data_in => DATA_BUS_OUT 
+    );
 
     -- Proceso de generación del reloj
     CLK_PROCESS: process
@@ -80,47 +101,47 @@ begin
         end loop;
     end process;
 
-    -- Proceso de sincronización del bus de datos externo
-    SYNC_DATA_BUS: process(CLK)
-    begin
-        if rising_edge(CLK) then
-            DATA_BUS_IN_EXTERN <= DATA_BUS_IN_EXTERN_NEXT;
-        end if;
-    end process;
+--    -- Proceso de sincronización del bus de datos externo
+--    SYNC_DATA_BUS: process(CLK)
+--    begin
+--        if rising_edge(CLK) then
+--            DATA_BUS_IN_EXTERN <= DATA_BUS_IN_EXTERN_NEXT;
+--        end if;
+--    end process;
 
-    -- Proceso de prueba
-    TEST_PROC: process
-    begin
-        -- Inicialización
-        READY <= '1';
-        DATA_BUS_IN_EXTERN_NEXT <= X"10";  --instruction SUB to REG 0
-
-        wait for CLK_PERIOD;
-        DATA_BUS_IN_EXTERN_NEXT <= X"02"; --imm8
-
-			--------- TRY READY
-		  wait for CLK_PERIOD;
-		  ready <= '0';
-        --DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --Instruction SHL
-		  
-		  wait for CLK_PERIOD * 4;
-		  DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --instruction SHL to REG 0
-		  
-		  ready <= '1';
-		  wait for CLK_PERIOD;
-        DATA_BUS_IN_EXTERN_NEXT <= X"A9"; --instruction ADC to reg 001 (dst) with reg 000(src)
-		  
-		  wait for CLK_PERIOD * 4;
-		  DATA_BUS_IN_EXTERN_NEXT <= X"A8";
-		  
-		 
-			
-		 -- wait for CLK_PERIOD * 4;
-		  
-
-			
-        -- Finalizar simulación
-        wait;
-    end process;
+--    -- Proceso de prueba
+--    TEST_PROC: process
+--    begin
+--        -- Inicialización
+--       
+----        DATA_BUS_IN_EXTERN_NEXT <= X"10";  --instruction SUB to REG 0
+----
+----        wait for CLK_PERIOD;
+----        DATA_BUS_IN_EXTERN_NEXT <= X"02"; --imm8
+----
+----			--------- TRY READY
+----		  wait for CLK_PERIOD;
+----		  ready <= '0';
+----        --DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --Instruction SHL
+----		  
+----		  wait for CLK_PERIOD * 4;
+----		  DATA_BUS_IN_EXTERN_NEXT <= X"C0"; --instruction SHL to REG 0
+----		  
+----		  ready <= '1';
+----		  wait for CLK_PERIOD;
+----        DATA_BUS_IN_EXTERN_NEXT <= X"A9"; --instruction ADC to reg 001 (dst) with reg 000(src)
+----		  
+----		  wait for CLK_PERIOD * 4;
+----		  DATA_BUS_IN_EXTERN_NEXT <= X"A8";
+----		  
+--		 
+--			
+--		 -- wait for CLK_PERIOD * 4;
+--		  
+--
+--			
+--        -- Finalizar simulación
+--        wait;
+--    end process;
 
 end behavior;
