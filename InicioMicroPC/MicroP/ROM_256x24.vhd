@@ -14,7 +14,7 @@ architecture Behavioral of ROM_256x24 is
 																	-- ROM content --
 												-- LAYOUT (SEE CONTROL_UNIT FOR NUMBER INFO) --
 																		-- BITS --
-												 -- 16|15|14|13|12|11|10|9|8|7|6|5|4|3|2|1| --
+									-- 24|23|22|21|20|19|18|17|16|15|14|13|12|11|10|9|8|7|6|5|4|3|2|1| --
             --ALU IMM8 MICROCODE
             16#00# => X"004088", --INITIAL FETCH
 				16#01# => X"004089", --DECODE
@@ -35,12 +35,19 @@ architecture Behavioral of ROM_256x24 is
 				16#21# => X"004089", --DECODE
 				16#22# => X"00508C", --FETCH & SAVE/EXC
 				
-				--MOV REG MICROCODE ( TODO ??? : CAN BE OPTIMIZED IF SRC REG GOES FIRST)
+				--MOV REG MICROCODE WITH DST IN FIRST BYTE
+--				16#30# => X"004088", --INITIAL FETCH
+--				16#31# => X"004089", --DECODE
+--				16#32# => X"010001", --EXC
+--				16#33# => X"000042", --EXC
+--				16#34# => X"00508C", --FETCH & SAVE
+
+				--MOV REG MICROCODE WITH SRC IN FIRST BYTE
 				16#30# => X"004088", --INITIAL FETCH
 				16#31# => X"004089", --DECODE
-				16#32# => X"010001", --EXC
-				16#33# => X"000042", --EXC
-				16#34# => X"00508C", --FETCH & SAVE
+				16#32# => X"010003", --EXC
+				16#33# => X"0050CC", --FETCH & SAVE
+				
 				
         -- ...
         others => x"000000"  -- Default values

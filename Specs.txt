@@ -63,15 +63,17 @@ Max 16 microinstructions per opcode and imm/reg arg.
 Instruction layout is XXXXYZZZ where
 X: 4-bit instruction identifier (see Instructions section)
 Y: 0 if argument is imm(8/16), 1 if argument is reg
-Z: 3-bit register identifier of DST register (see Registers section)
+Z: 3-bit register identifier of a register (see Registers section)
 
-* instructions with reg: reg arguments have the SRC register encoded in the
+* instructions with reg: reg arguments have the register, could be SRC or DST, encoded in the
   first three bits of the second instruction byte and the other bits are the same of the first byte.
 * For LDA/STR, the Y-bit indicates imm16 (0) and full reg (1). Z-bits are ALWAYS reg.
 * Instructions can be 1-3 bytes long
     * PUSH/POP with one register argument are one byte instructions
     * LDR/STR with Y=0 (imm16) are 3 bytes each.
     * LDA is always 3 bytes.
+* Operations that uses SRC as first byte:
+	* MOV with REG.
 
 === Flag register layout ===
 Flag register layout is ------ZC where

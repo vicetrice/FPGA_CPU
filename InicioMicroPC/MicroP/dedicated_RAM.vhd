@@ -33,8 +33,8 @@ architecture Behavioral of RAM_64Kx8 is
 	 16#0008# =>  X"0B",-- ADD TO REG 3 INST (REG)
 	 16#0009# =>  X"0A",-- REG 2
 	 
-	 16#000A# => X"6C", --MOV TO REG 4 INST (REG)
-	 16#000B# => X"6B", --REG 3
+	 16#000A# => X"6B", --MOV TO REG 4 REG 3 VALUE INST (REG)
+	 16#000B# => X"6C", --REG 4 (DST)
 	 
 	 16#000C# => X"04", --ADD TO REG 4 INST (IMM8)
 	 16#000D# => X"00", --IMM, VAL = 0x00

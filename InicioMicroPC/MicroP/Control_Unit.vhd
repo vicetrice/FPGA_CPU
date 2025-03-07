@@ -74,9 +74,9 @@ BEGIN
         IF rising_edge(CLK) THEN
             IF CONTROL_OUT(0) = '1' THEN
                 IF CONTROL_OUT(16) = '1' THEN
-                    instruction_reg(15 DOWNTO 8) <= INSTRUCTION; -- (SRC)
+                    instruction_reg(15 DOWNTO 8) <= INSTRUCTION; -- MSB
                 ELSE
-                    instruction_reg(7 DOWNTO 0) <= INSTRUCTION; -- (DST)
+                    instruction_reg(7 DOWNTO 0) <= INSTRUCTION; -- LSB
                 END IF;
             END IF;
         END IF;
