@@ -15,9 +15,9 @@ A custom 8-bit CPU with a 16-bit register architecture, supporting basic arithme
 0x6: MOV	reg, imm8/reg		-> reg = imm8/reg 
 0x7: LDR	reg, [imm16/reg]	-> reg = [imm16/reg]  
 0x8: STR	[imm16/reg], reg	-> [imm16/reg] = reg    
-0x9: JNZ	imm16/reg		-> PC = imm16/reg if flag Z == 1 else NOP
+0x9: JNZ	imm16/reg		-> IP = imm16/reg if flag Z == 0 else NOP
 0xA: ADC^	reg, imm8/reg		-> reg = reg + imm8/reg + c  
-0xB: LDA	reg, [imm16]		-> reg = imm16    
+0xB: LDA	reg, [imm16/reg]	-> reg = imm16/reg    
 0xC: SHL^	reg 			-> reg = reg << 1  
 0xD: SHR^	reg			-> reg  = reg >> 1  
 0xE: PUSH	imm8/reg		-> [SP--] = imm8/reg     
@@ -26,7 +26,8 @@ A custom 8-bit CPU with a 16-bit register architecture, supporting basic arithme
 
 ^: The instruction marked with this symbol are affected or affect the carry flag if the instructions
 are not marked with this symbol they will not affect in any way this flag.
-*Only LDA will affect the 16 bits of the register, all the other operations will affect the LSB.
+*Only LDA will affect the 16 bits of the register, all the other instructions will affect the LSB.
+*Instructions that use an imm16 as argument will use the 16 bits of the register if the argument is a register.
 *Only the AL operations affect the zero flag.
 
 === Registers ===
@@ -38,13 +39,12 @@ are not marked with this symbol they will not affect in any way this flag.
 	R3		(0x3) : GP register 		(LSB 3 reg) 	0		011
 	R4		(0x4) : GP register 		(LSB 4 reg) 	0		100
 	R5		(0x5) : GP register 		(LSB 5 reg) 	0		101
-	R6		(0x6) : GP register  		(LSB 6 reg)     0		110
+	IP		(0x6) : Instruction Pointer  	(LSB 6 reg)     X		110
 	SP		(0x7) : Stack Pointer		(7 reg)	    	X		111
 
-*Separated register for PC, will only be changed with jnz instruction.
 *FG register can only be changed by the ALU.
 *Calling convention
-	*R0-R6, SP, FG for arguments.
+	*R0-R5, SP, IP for arguments.
 	*BYTE_SEL is controlled by the CU.
 	
 === Microcode === 
