@@ -49,7 +49,7 @@ are not marked with this symbol they will not affect in any way this flag.
 	
 === Microcode === 
 256 x 24b ROM
-0x00...0FF
+0x00...0xFF
 
 address Layout is XXXYZZZZ where:
 X: 3-bit used for encoded opcode, since all ALU op do the same they are encoded as "000";
