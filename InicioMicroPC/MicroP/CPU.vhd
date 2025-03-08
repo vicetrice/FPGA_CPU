@@ -32,7 +32,6 @@ ARCHITECTURE Behavioral OF CPU IS
 		-- 010: RAM
 		-- 011: ACC
 		-- 100: FLAGS
-		-- 101: PC
 		-- 110: ALU
 		PORT (
 			-- CONTROL SIGNAL OUT --
@@ -44,7 +43,7 @@ ARCHITECTURE Behavioral OF CPU IS
 			TREG_EN : OUT STD_LOGIC; -- 6: Temporary Register enable  
 			IR_REG_SEL_BYTE : OUT STD_LOGIC; -- 7: IR_REG_SEL_BYTE
 			INC_DEC_EN : OUT STD_LOGIC; -- 8: Instruction Pointer increment/decrement control  
-			IP_WEN : OUT STD_LOGIC; -- 9: Instruction Pointer Write enable  
+			ADDR_LATCH_DIS : OUT STD_LOGIC; -- 9: Address latch Write disable  
 			REN_2 : OUT STD_LOGIC; -- 10:  (used to multiplex reading)
 			RAM_WEN : OUT STD_LOGIC; -- 11: RAM write enable  
 			BYTE_SEL : OUT STD_LOGIC; -- 12: BYTE SELECT  
@@ -52,7 +51,7 @@ ARCHITECTURE Behavioral OF CPU IS
 			FG_WEN : OUT STD_LOGIC; --14: FG_WEN
 			INC_DEC : OUT STD_LOGIC; --15: SELECT IF INC OR DEC 1:INC , 0: DEC
 			FG_SEL_IN : OUT STD_LOGIC; --16: SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS
-			BYTE_SEL_IP: OUT STD_LOGIC;--18: SELECT A BYTE FROM IP: 0: LSB, 1:MSB
+			ADDR_SEL: OUT STD_LOGIC;--18: SELECT WHICH DIRECTION USE FOR ADDRESS BUS: 0: IP, 1:SP
 
 			-- SPECIAL OUTS --
 			OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
@@ -83,22 +82,25 @@ ARCHITECTURE Behavioral OF CPU IS
 	------------------------------------------------------- REGISTER ARRAY
 
 	COMPONENT Reg_array
-		PORT (
-			REG_SEL : IN STD_LOGIC_VECTOR(2 DOWNTO 0); -- REGISTER SELECT
-			DATA_OUT_BUS : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
-			DATA_IN_BUS : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-			READ_REG : IN STD_LOGIC; -- READ SIGNAL
-			WRITE_REG : IN STD_LOGIC; -- WRITE SIGNAL
-			BYTE_SEL : IN STD_LOGIC; -- 0 = LSB, 1 = MSB
-			CLK : IN STD_LOGIC
-		);
+		 port(
+        REG_SEL: in STD_LOGIC_VECTOR(2 downto 0); -- REGISTER SELECT FOR DATA BUS
+        REG_SEL2: in STD_LOGIC_VECTOR(2 downto 0); -- REGISTER SELECT FOR ADDR LATCH
+        DATA_OUT_BUS: out STD_LOGIC_VECTOR(7 downto 0);
+		  DATA_IN_BUS: in STD_LOGIC_VECTOR(7 downto 0);
+		  ADDR_BUS_LATCH: out STD_LOGIC_VECTOR(15 downto 0);
+		  INC_DEC: in STD_LOGIC;
+		  INC_DEC_EN: IN STD_LOGIC;
+        READ_REG: in STD_LOGIC;  -- READ SIGNAL
+        WRITE_REG: in STD_LOGIC; -- WRITE SIGNAL
+        BYTE_SEL: in STD_LOGIC; -- 0 = LSB, 1 = MSB
+		  CLK: in STD_LOGIC
+    );
 	END COMPONENT;
 
-	FOR ALL : REG_ARRAY USE ENTITY work.REG_array(Behavioral2);
+	FOR ALL : REG_ARRAY USE ENTITY work.REG_array(Behavioral);
 
 	-- SPECIAL REGISTERS
 	SIGNAL ACC_REG : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
-	SIGNAL IP_reg : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0');
 	SIGNAL T_REG : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
 	SIGNAL FG_REG : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
 	SIGNAL SEL_SYNC : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
@@ -113,19 +115,22 @@ ARCHITECTURE Behavioral OF CPU IS
 	SIGNAL TREG_EN : STD_LOGIC; -- 6: Temporary Register enable  
 	SIGNAL IR_REG_SEL_BYTE : STD_LOGIC; -- 7: IR_REG_SEL_BYTE  
 	SIGNAL INC_DEC_EN : STD_LOGIC; -- 8: Instruction Pointer increment/decrement control  
-	SIGNAL IP_WEN : STD_LOGIC; -- 9: Instruction Pointer Write enable  
+	SIGNAL ADDR_LATCH_DIS : STD_LOGIC; -- 9: Address latch Write disable  
 	SIGNAL REN_2 : STD_LOGIC; -- 10: (used to multiplex reading)
 	SIGNAL RAM_WEN : STD_LOGIC; -- 11: RAM write enable  
 	SIGNAL BYTE_SEL : STD_LOGIC; -- 12: BYTE SELECT  
 	SIGNAL FG_WEN : STD_LOGIC; --14: FG_WEN
 	SIGNAL INC_DEC : STD_LOGIC; --15: SELECT IF INC OR DEC 1:INC , 0: DEC
 	SIGNAL FG_SEL_IN : STD_LOGIC; --16: SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS
-	SIGNAL BYTE_SEL_IP: STD_LOGIC;--18: SELECT A BYTE FROM IP: 0: LSB, 1:MSB
+	SIGNAL ADDR_SEL: STD_LOGIC;--18: SELECT WHICH DIRECTION USE FOR ADDRESS BUS: 0: IP, 1:SP
 
 	--SPECIAL SIGNALS
 	SIGNAL OPCODE_OUT : STD_LOGIC_VECTOR(3 DOWNTO 0);
 	SIGNAL REG_SEL_OUT : STD_LOGIC_VECTOR(2 DOWNTO 0);
 	SIGNAL FG_OUT : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL ADDR_BUS_LATCH : STD_LOGIC_VECTOR(15 DOWNTO 0);
+	SIGNAL REG_SEL2: STD_LOGIC_VECTOR(2 downto 0);
+
 
 	SIGNAL ALU_OUT : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
@@ -135,28 +140,12 @@ ARCHITECTURE Behavioral OF CPU IS
 BEGIN
 	----------------------------------------------------------------- SPECIAL REGISTERS -----------------------------------------------------------------
 
-	IP : PROCESS (CLK)
+	ADDRESS_LATCH : PROCESS (ADDR_LATCH_DIS, ADDR_BUS_LATCH)
 		VARIABLE sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
 	BEGIN
 
-		IF rising_edge(CLK) THEN
-			sel := REN_2 & REN_1 & REN_0;
-			IF IP_WEN = '1' AND sel /= "101" THEN
-				IF BYTE_SEL_IP = '1' THEN
-					IP_reg(15 DOWNTO 8) <= DATA_BUS_IN;
-				ELSE
-					IP_reg(7 DOWNTO 0) <= DATA_BUS_IN;
-				END IF;
-			ELSE
-				IF INC_DEC_EN = '1' THEN
-					IF INC_DEC = '1' THEN
-						IP_reg <= STD_LOGIC_VECTOR(unsigned(IP_reg) + 1);
-					ELSE
-						IP_reg <= STD_LOGIC_VECTOR(unsigned(IP_reg) - 1);
-					END IF;
-				END IF;
-			END IF;
-
+		IF ADDR_LATCH_DIS = '0' THEN
+					ADDRESS_BUS <= ADDR_BUS_LATCH;
 		END IF;
 
 	END PROCESS;
@@ -212,7 +201,7 @@ BEGIN
 	END PROCESS;
 
 	----------------------------------------------------------------------------------------------------------------------------------
-	MUX_DATA_OUT : PROCESS (SEL_SYNC, ACC_REG, IP_reg, FG_REG, REG_OUTS, DATA_BUS_IN_EXTERN, ALU_OUT, PREV_OUT, BYTE_SEL)
+	MUX_DATA_OUT : PROCESS (SEL_SYNC, ACC_REG, FG_REG, REG_OUTS, DATA_BUS_IN_EXTERN, ALU_OUT, PREV_OUT, BYTE_SEL)
 	BEGIN
 		CASE SEL_SYNC IS
 			WHEN "001" =>
@@ -221,12 +210,6 @@ BEGIN
 				DATA_BUS_OUT <= ACC_REG;
 			WHEN "100" =>
 				DATA_BUS_OUT <= FG_REG;
-			WHEN "101" =>
-				if BYTE_SEL = '0' then
-					DATA_BUS_OUT <= IP_reg(7 DOWNTO 0);
-				else
-					DATA_BUS_OUT <= IP_reg(15 DOWNTO 8);
-				end if;
 			WHEN "010" =>
 				DATA_BUS_OUT <= DATA_BUS_IN_EXTERN;
 			WHEN "110" =>
@@ -235,6 +218,16 @@ BEGIN
 				DATA_BUS_OUT <= PREV_OUT;
 		END CASE;
 	END PROCESS;
+	
+	MUX_FOR_ADDR: PROCESS(ADDR_SEL)
+	begin
+		case ADDR_SEL IS
+		when '1' =>
+			REG_SEL2 <= "111"; --0x7 SP
+		when others =>
+			REG_SEL2 <= "110"; --0x6 IP
+		end case;
+	end process;
 
 	------------------------------------ COMPONENTS ------------------------------------
 	CU : Control_Unit PORT MAP(
@@ -245,14 +238,14 @@ BEGIN
 		TREG_EN => TREG_EN,
 		IR_REG_SEL_BYTE => IR_REG_SEL_BYTE,
 		INC_DEC_EN => INC_DEC_EN,
-		IP_WEN => IP_WEN,
+		ADDR_LATCH_DIS => ADDR_LATCH_DIS,
 		REN_2 => REN_2,
 		RAM_WEN => RAM_WEN,
 		BYTE_SEL => BYTE_SEL,
 		FG_WEN => FG_WEN,
 		INC_DEC => INC_DEC,
 		FG_SEL_IN => FG_SEL_IN,
-		BYTE_SEL_IP => BYTE_SEL_IP,--18: SELECT A BYTE FROM IP: 0: LSB, 1:MSB
+		ADDR_SEL => ADDR_SEL,
 
 		
 		OPCODE_OUT => OPCODE_OUT,
@@ -276,9 +269,13 @@ BEGIN
 	);
 
 	REGISTERS : REG_ARRAY PORT MAP(
+		REG_SEL2 => "110",
 		REG_SEL => REG_SEL_OUT,
 		DATA_OUT_BUS => REG_OUTS,
 		DATA_IN_BUS => DATA_BUS_IN,
+		ADDR_BUS_LATCH => ADDR_BUS_LATCH,
+		INC_DEC => INC_DEC,
+		INC_DEC_EN => INC_DEC_EN,
 		READ_REG => READ_REG,
 		WRITE_REG => REG_ARR_WEN,
 		BYTE_SEL => BYTE_SEL,
@@ -291,7 +288,7 @@ BEGIN
 		'0';
 	EXTERN_WRITE <= '1' WHEN (REN_2 & REN_1 & REN_0) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)) AND RAM_WEN = '1' ELSE
 		'0';
-	ADDRESS_BUS <= IP_REG;
+		
 	ALU_OUT_EXT <= ALU_OUT; --SOLO TESTTTTTSSSTTSTTTST
 	STAT_OUT <= FG_REG; --SOLO TESSTSTSTT;
 	REG_SEL_OUT_CPU<= REG_SEL_OUT ;--SOLO TESSTSTSTT;

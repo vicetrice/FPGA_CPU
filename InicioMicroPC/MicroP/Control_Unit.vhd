@@ -10,7 +10,6 @@ ENTITY Control_Unit IS
     -- 010: RAM
     -- 011: ACC
     -- 100: FLAGS
-    -- 101: PC
     -- 110: ALU
     --TODO: FIX BYTE_SEL, MAYBE ADD MORE CONTROL SIGNALS 
     PORT (
@@ -23,7 +22,7 @@ ENTITY Control_Unit IS
         TREG_EN : OUT STD_LOGIC; -- 6: Temporary Register enable  
         IR_REG_SEL_BYTE : OUT STD_LOGIC; -- 7: Select which byte of the 16-bit IR to use for register selection 0: LSB, 1:MSB.   
         INC_DEC_EN : OUT STD_LOGIC; -- 8: Instruction Pointer increment/decrement control  
-        IP_WEN : OUT STD_LOGIC; -- 9: Instruction Pointer Write enable  
+        ADDR_LATCH_DIS : OUT STD_LOGIC; -- 9: Address latch Write disable  
         REN_2 : OUT STD_LOGIC; -- 10: (used to multiplex reading)
         RAM_WEN : OUT STD_LOGIC; -- 11: RAM write enable  
         BYTE_SEL : OUT STD_LOGIC; -- 12: BYTE SELECT  
@@ -32,7 +31,8 @@ ENTITY Control_Unit IS
         INC_DEC : OUT STD_LOGIC; --15: SELECT IF INC OR DEC 1:INC , 0: DEC
         FG_SEL_IN : OUT STD_LOGIC; --16: SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS, it works as byte select for reg when ALU op
         --17: BYTE SELECT FOR INSTRUCTION REGISTER
-        BYTE_SEL_IP : OUT STD_LOGIC;--18: SELECT A BYTE FROM IP: 0: LSB, 1:MSB
+        ADDR_SEL : OUT STD_LOGIC;--18: SELECT WHICH DIRECTION USE FOR ADDRESS BUS: 0: IP, 1:SP
+
         -- SPECIAL OUTS --
         OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
         REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
@@ -90,7 +90,7 @@ BEGIN
                 IF CONTROL_OUT(12) = '0' THEN -- If bit 12 of CONTROL_OUT is '0'
                     MIC <= MIC + 1; -- Increment the micro instruction counter
                 ELSE
-                    MIC <= to_unsigned(1, 4);
+                    MIC <= to_unsigned(0, 4);
                 END IF;
             END IF;
         END IF;
@@ -101,7 +101,7 @@ BEGIN
     CL : PROCESS (instruction_reg, MIC)
         VARIABLE opcode : STD_LOGIC_VECTOR(3 DOWNTO 0);
         VARIABLE imm_or_reg : STD_LOGIC;
-        VARIABLE reg_sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
+        --VARIABLE reg_sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
 
     BEGIN
         -- Extract opcode, immediate or register bit, and register selection from the instruction
@@ -110,12 +110,14 @@ BEGIN
 
         opcode := instruction_reg(7 DOWNTO 4);
         imm_or_reg := instruction_reg(3);
-        reg_sel := instruction_reg(2 DOWNTO 0);
+        --reg_sel := instruction_reg(2 DOWNTO 0);
 
         -- Use a case statement to handle all opcodes and set address accordingly
         CASE opcode IS
             WHEN X"6" =>
                 addr <= "001" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --MOV OP
+				WHEN X"9" =>
+					 addr <= "010" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --MOV OP
 				WHEN others =>
                 addr <= "000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP
 
@@ -156,7 +158,7 @@ BEGIN
         '0'; -- IR_REG_SEL_BYTE 
     INC_DEC_EN <= CONTROL_OUT(7) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
         '0'; -- Instruction Pointer Increment/Decrement
-    IP_WEN <= CONTROL_OUT(8) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+    ADDR_LATCH_DIS <= CONTROL_OUT(8) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
         '0'; -- Instruction Pointer Enable
     REN_2 <= CONTROL_OUT(9) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
         '0'; -- multiplex read
@@ -170,7 +172,8 @@ BEGIN
         '0'; --SELECT IF INC OR DEC 1:INC , 0: DEC
     FG_SEL_IN <= CONTROL_OUT(15) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
         '0'; --SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS
-    BYTE_SEL_IP <= CONTROL_OUT(17);
+    ADDR_SEL <= CONTROL_OUT(17) WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) ELSE
+        '0';
 
     ROM_ADDR_OUT <= addr; -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 
