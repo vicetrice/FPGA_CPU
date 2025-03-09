@@ -18,26 +18,50 @@ architecture Behavioral of RAM_64Kx8 is
     signal RAM : RAM_Array := (
 	 
 	 --PROGRAM
-	 16#0000# =>  X"10",-- SUB TO REG 0 INST (IMM8)
-	 16#0001# =>  X"02",-- IMM, VAL = 0x02
+	 --		equivalent in C
+	 -- While ( Reg1 != 20) ++Reg1; 
+	 16#0000# => X"61", --MOV TO REG 1 VALUE: 20
+	 16#0001# => X"14",
 	 
-	 16#0002# =>  X"C0",-- SHL REG 0 INST
-	 16#0003# =>  X"00",-- NOT USED
+	 16#0002# => X"00", --ADD 1 TO REG 1
+	 16#0003# => X"01",
+	
+	 16#0004# =>  X"19",-- SUB TO REG 1 REG 0
+    16#0005# =>  X"18",
 	 
-	 16#0004# =>  X"A9",-- ADC TO REG 1 INST (REG)
-	 16#0005# =>  X"A8",-- REG 2
+	 16#0006# => X"96", --JNZ TO DIRECTION 0x0000
+	 16#0007# => X"00",
+	 16#0008# => X"00",
 	 
-	 16#0006# =>  X"62",-- MOV TO REG 2 (IMM8)
-	 16#0007# =>  X"0F",-- IMM, VAL = 0x0F
 	 
-	 16#0008# =>  X"0B",-- ADD TO REG 3 INST (REG)
-	 16#0009# =>  X"0A",-- REG 2
-	 
-	 16#000A# => X"6B", --MOV TO REG 4 REG 3 VALUE INST (REG)
-	 16#000B# => X"6C", --REG 4 (DST)
-	 
-	 16#000C# => X"06", --ADD TO REG 6 INST (IMM8)
-	 16#000D# => X"00", --IMM, VAL = 0x00
+--	 16#0000# =>  X"10",-- SUB TO REG 0 INST (IMM8)
+--	 16#0001# =>  X"02",-- IMM, VAL = 0x02
+--	 
+--	 16#0002# =>  X"C0",-- SHL REG 0 INST
+--	 16#0003# =>  X"00",-- NOT USED
+--	 
+--	 16#0004# =>  X"A9",-- ADC TO REG 1 INST (REG)
+--	 16#0005# =>  X"A8",-- REG 2
+--	 
+--	 16#0006# =>  X"62",-- MOV TO REG 2 (IMM8)
+--	 16#0007# =>  X"0F",-- IMM, VAL = 0x0F
+--	 
+--	 16#0008# =>  X"0B",-- ADD TO REG 3 INST (REG)
+--	 16#0009# =>  X"0A",-- REG 2
+--	 
+--	 16#000A# => X"6B", --MOV TO REG 4 REG 3 VALUE INST (REG)
+--	 16#000B# => X"6C", --REG 4 (DST)
+--	 
+--	 16#000C# => X"06", --ADD TO REG 6 INST (IMM8)
+--	 16#000D# => X"00", --IMM, VAL = 0x00
+--	 
+--	 16#000E# =>  X"1B",-- SUB TO REG 3 INST (REG)
+--	 16#000F# =>  X"1B",-- REG 2
+--	 
+--	 16#0010# => X"96", --JNZ INST (IMM16)
+--	 16#0011# => X"06", --IMM8 LSB, VAL = 0x06
+--	 16#0012# => X"00", --IMM8 MSB, VAL = 0x00
+
 
 
 	 

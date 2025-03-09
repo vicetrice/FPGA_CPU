@@ -8,7 +8,7 @@ A custom 8-bit CPU with a 16-bit register architecture, supporting basic arithme
 === Instructions ===
 0x0: ADD^	reg, imm8/reg		-> reg = reg + imm8/reg
 0x1: SUB^	reg, imm8/reg		-> reg  = reg - imm8/reg
-0x2: NAND	reg, imm8/reg		-> reg = ~(reg & imm8/reg)  
+0x2: NAND^	reg, imm8/reg		-> reg = ~(reg & imm8/reg)  
 0x3: SBB^	reg, imm8/reg		-> reg = reg - imm8/reg - b    
 0x4: XOR	reg, imm8/reg		-> reg = reg ^ imm8/reg  
 0x5: NOR	reg, imm8/reg		-> reg = ~(reg | imm8/reg)   
@@ -23,6 +23,8 @@ A custom 8-bit CPU with a 16-bit register architecture, supporting basic arithme
 0xE: PUSH	imm8/reg		-> [SP--] = imm8/reg     
 0xF: POP	reg			-> reg = [++SP]    
 
++1 extra Operation:
+POP Instruction with reg argument works as POPF: reg, fg	-> reg = fg
 
 ^: The instruction marked with this symbol are affected or affect the carry flag if the instructions
 are not marked with this symbol they will not affect in any way this flag.
@@ -42,7 +44,7 @@ are not marked with this symbol they will not affect in any way this flag.
 	IP		(0x6) : Instruction Pointer  	(LSB 6 reg)     X		110
 	SP		(0x7) : Stack Pointer		(7 reg)	    	X		111
 
-*FG register can only be changed by the ALU.
+*+1 extra FG register, it can only be changed by the ALU but it can be retrieved with POPF to a register.
 *Calling convention
 	*R0-R5, SP, IP for arguments.
 	*BYTE_SEL is controlled by the CU.
@@ -76,7 +78,9 @@ Z: 3-bit register identifier of a register (see Registers section)
 	* MOV with REG.
 
 === Flag register layout ===
-Flag register layout is ------ZC where
+Flag register layout is ----LECZ where
 C: set to 1 if an operation produces a carry or borrow or overflow (ADD/ADC/SUBB/SUB/SHR/SHL).
 Z: set to 1 if the result of the operation is zero.
+E: set to 1 if the arguments are EQUAL.
+L: set to 1 if the dst argument is LESS than src argument.
 -: Not used.

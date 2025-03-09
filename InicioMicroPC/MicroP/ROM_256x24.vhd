@@ -20,7 +20,7 @@ architecture Behavioral of ROM_256x24 is
 				16#01# => X"004089", --DECODE
 				16#02# => X"000022", --EXC
 				16#03# => X"000218", --EXC
-				16#04# => X"00301C", --SAVE
+				16#04# => X"003014", --SAVE
 				
 				--ALU REG MICROCODE
 				16#10# => X"004088", --FETCH
@@ -28,12 +28,12 @@ architecture Behavioral of ROM_256x24 is
 				16#12# => X"010003", --EXC
 				16#13# => X"000052", --EXC
 				16#14# => X"000228", --EXC
-				16#15# => X"00301C", --SAVE
+				16#15# => X"003014", --SAVE
 				
 				--MOV IMM8 MICROCODE
 				16#20# => X"004088", --FETCH
 				16#21# => X"004089", --DECODE
-				16#22# => X"00100C", --SAVE & EXC
+				16#22# => X"001004", --SAVE & EXC
 				
 				--MOV REG MICROCODE WITH DST IN FIRST BYTE
 --				16#30# => X"004088", --FETCH
@@ -46,11 +46,15 @@ architecture Behavioral of ROM_256x24 is
 				16#30# => X"004088", --FETCH
 				16#31# => X"004089", --DECODE
 				16#32# => X"010003", --EXC
-				16#33# => X"00104C", --SAVE
+				16#33# => X"001044", --SAVE
 				
 				--JNZ IMM8 MICROCODE
 				16#40# => X"004088", --FETCH
 				16#41# => X"004089", --DECODE
+				16#42# => X"004098", --DECODE
+				16#43# => X"00090E", --DECODE
+				16#44# => X"000104", --DECODE
+				16#45# => X"001000", --SECURITY CYCLE FOR LATCH
 				
 				
 				

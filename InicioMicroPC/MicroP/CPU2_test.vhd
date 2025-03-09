@@ -58,7 +58,7 @@ architecture behavior of tb_CPU2 is
     signal DATA_BUS_IN_EXTERN_NEXT : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
 
     -- Clock period
-    constant CLK_PERIOD : time := 10 ns;
+    constant CLK_PERIOD : time := 0.1 ns;
 
 begin
 		
