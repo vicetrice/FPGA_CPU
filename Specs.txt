@@ -45,14 +45,14 @@ are not marked with this symbol they will not affect in any way this flag.
 	IP		(0x6) : Instruction Pointer  	(LSB 6 reg)     X		110
 	SP		(0x7) : Stack Pointer		(7 reg)	    	X		111
 
-*+1 extra FG register, it can only be changed by the ALU but it can be retrieved with POPF to a register.
+*+1 extra FG register, it can be retrieved or changed with POPF and PUSHF.
 *Calling convention
 	*R0-R5, SP, IP for arguments.
 	*BYTE_SEL is controlled by the CU.
 	
 === Microcode === 
-256 x 24b ROM
-0x00...0xFF
+512 x 24b ROM
+0o000...0o777
 
 address Layout is XXXYZZZZ where:
 X: 3-bit used for encoded opcode, since all ALU op do the same they are encoded as "000";
