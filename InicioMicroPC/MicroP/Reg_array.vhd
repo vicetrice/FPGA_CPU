@@ -16,7 +16,9 @@ entity Reg_array is
         READ_REG: in STD_LOGIC;  -- READ SIGNAL
         WRITE_REG: in STD_LOGIC; -- WRITE SIGNAL
         BYTE_SEL: in STD_LOGIC; -- 0 = LSB, 1 = MSB
-		  CLK: in STD_LOGIC
+		  CLK: in STD_LOGIC;
+		  RST: in STD_LOGIC
+		  
     );
 end Reg_array;
 
@@ -27,11 +29,14 @@ architecture Behavioral of Reg_array is
 
 begin
 
-    WR_RD: process(CLK, registers)
+
+
+    WR_RD: process(CLK)
     variable sel: STD_LOGIC_VECTOR(2 downto 0);
     begin
         if rising_edge(CLK) then
-           --WRITE
+          
+			  --WRITE
 			if WRITE_REG = READ_REG then
                 sel := REG_SEL2;
             else
@@ -63,7 +68,6 @@ begin
 				END IF;
 				
             end if;
-				
 				
         end if;
 		  

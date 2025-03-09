@@ -25,6 +25,7 @@ use IEEE.NUMERIC_STD.ALL;
 entity CPU2 is
 PORT (
 		CLK : IN STD_LOGIC;
+		RST: in STD_LOGIC;
 		READY : IN STD_LOGIC;
 		DATA_BUS_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
@@ -32,7 +33,7 @@ PORT (
 		EXTERN_READ: out STD_LOGIC;
 		EXTERN_WRITE: out STD_LOGIC;
 		
-				ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(8 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0) -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
@@ -46,6 +47,7 @@ architecture Behavioral of CPU2 is
 component CPU 
 PORT (
 		CLK : IN STD_LOGIC;
+		RST: in STD_LOGIC;
 		READY : IN STD_LOGIC;
 		DATA_BUS_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		DATA_BUS_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -53,7 +55,9 @@ PORT (
 		EXTERN_READ: out STD_LOGIC;
 		EXTERN_WRITE: out STD_LOGIC;
 		ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-		ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+		
+		
+		ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(8 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0) -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
@@ -69,6 +73,7 @@ begin
 
 CentralPU: CPU port map(
 			CLK => CLK,
+			RST => RST,
 			READY => READY,
 			DATA_BUS_OUT => internal_BUS_OUT,
 			DATA_BUS_IN => internal_BUS_in,

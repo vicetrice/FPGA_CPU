@@ -38,31 +38,31 @@ ENTITY Control_Unit IS
         REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
 
         --TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+        ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(8 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 
         -- INS --
         CLK : IN STD_LOGIC;
         INSTRUCTION : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-        --RST: in STD_LOGIC;
         FLAGS : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-        READY : IN STD_LOGIC
+        READY : IN STD_LOGIC;
+		  RST: in STD_LOGIC
     );
 END Control_Unit;
 
 ARCHITECTURE Behavioral OF Control_Unit IS
 
     -- Declaration of ROM component
-    COMPONENT ROM_256x24
+    COMPONENT ROM_512x24
         PORT (
-            address : IN STD_LOGIC_VECTOR(7 DOWNTO 0); -- 12-bit address (4K words)
+            address : IN STD_LOGIC_VECTOR(8 DOWNTO 0); -- 12-bit address (4K words)
             data_out : OUT STD_LOGIC_VECTOR(23 DOWNTO 0) -- 16-bit output
         );
     END COMPONENT;
 
-    FOR ALL : ROM_256x24 USE ENTITY work.ROM_256x24;
+    FOR ALL : ROM_512x24 USE ENTITY work.ROM_512x24;
 
     -- Internal signals
-    SIGNAL addr : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0'); -- Address signal for ROM
+    SIGNAL addr : STD_LOGIC_VECTOR(8 DOWNTO 0) := (OTHERS => '0'); -- Address signal for ROM
     SIGNAL MIC : unsigned(3 DOWNTO 0) := (OTHERS => '0'); -- Micro Instruction Counter
     SIGNAL instruction_reg : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0'); -- Instruction register
     SIGNAL CONTROL_OUT : STD_LOGIC_VECTOR(23 DOWNTO 0) := (OTHERS => '0'); -- Control signal output from ROM
@@ -73,6 +73,9 @@ BEGIN
     INST_REG : PROCESS (CLK)
     BEGIN
         IF rising_edge(CLK) THEN
+		  if RST = '1' then
+					instruction_reg <= (others => '0');
+		  else
             IF CONTROL_OUT(0) = '1' THEN
                 IF CONTROL_OUT(16) = '1' THEN
                     instruction_reg(15 DOWNTO 8) <= INSTRUCTION; -- MSB
@@ -80,13 +83,18 @@ BEGIN
                     instruction_reg(7 DOWNTO 0) <= INSTRUCTION; -- LSB
                 END IF;
             END IF;
-        END IF;
+        end if;
+		  END IF;
     END PROCESS;
 
     -- Micro Instruction Counter process
     MI_COUNT : PROCESS (CLK)
     BEGIN
         IF rising_edge(CLK) THEN
+		  
+		  if RST = '1' then
+				MIC <= (others => '0');
+		  else
             IF (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) THEN
                 IF CONTROL_OUT(12) = '0' THEN -- If bit 12 of CONTROL_OUT is '0'
                     MIC <= MIC + 1; -- Increment the micro instruction counter
@@ -94,6 +102,7 @@ BEGIN
                     MIC <= to_unsigned(0, 4);
                 END IF;
             END IF;
+			end if;
         END IF;
     END PROCESS;
 
@@ -117,14 +126,14 @@ BEGIN
 		  JNZ <= '0';
         CASE opcode IS
             WHEN X"6" =>
-                addr <= "001" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --MOV OP
+                addr <= "0001" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --MOV OP
             WHEN X"9" =>
-                addr <= "010" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --JNZ OP
+                addr <= "0010" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --JNZ OP
 					 JNZ <= '1';
 				WHEN X"B" => 
-					 addr <= "010" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --LDA OP
+					 addr <= "0010" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --LDA OP
             WHEN OTHERS =>
-                addr <= "000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP (EXCEPT CMP AND SHL/SHR)
+                addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP (EXCEPT CMP AND SHL/SHR)
 
         END CASE;
 
@@ -148,7 +157,7 @@ BEGIN
 
     END PROCESS;
     -- ROM instantiation and connection
-    U0 : ROM_256x24 PORT MAP(addr, CONTROL_OUT);
+    U0 : ROM_512x24 PORT MAP(addr, CONTROL_OUT);
     REN_0 <= CONTROL_OUT(1) 
     WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
 	 ELSE '0'; -- multiplex read

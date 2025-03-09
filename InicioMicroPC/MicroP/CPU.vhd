@@ -5,6 +5,7 @@ USE IEEE.NUMERIC_STD.ALL;
 ENTITY CPU IS
 	PORT (
 		CLK : IN STD_LOGIC;
+		RST : in STD_LOGIC;
 		READY : IN STD_LOGIC;
 		DATA_BUS_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
 		DATA_BUS_IN : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -14,7 +15,7 @@ ENTITY CPU IS
 		ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
 		
 		
-		ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+		ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(8 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		ALU_OUT_EXT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0)
@@ -58,12 +59,13 @@ ARCHITECTURE Behavioral OF CPU IS
 			REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
 
 			--TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+			ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(8 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 			-- INS --
 			CLK : IN STD_LOGIC;
 			INSTRUCTION : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
 			FLAGS: in STD_LOGIC_VECTOR(7 downto 0);
-			READY : IN STD_LOGIC
+			READY : IN STD_LOGIC;
+			RST: in STD_LOGIC
 		);
 	END COMPONENT;
 
@@ -93,7 +95,8 @@ ARCHITECTURE Behavioral OF CPU IS
         READ_REG: in STD_LOGIC;  -- READ SIGNAL
         WRITE_REG: in STD_LOGIC; -- WRITE SIGNAL
         BYTE_SEL: in STD_LOGIC; -- 0 = LSB, 1 = MSB
-		  CLK: in STD_LOGIC
+		  CLK: in STD_LOGIC;
+		  RST: in STD_LOGIC
     );
 	END COMPONENT;
 
@@ -155,11 +158,14 @@ BEGIN
 		VARIABLE sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
 	BEGIN
 		IF rising_edge(CLK) and ACC_WEN = '1' THEN
+			if RST = '1' then
+				ACC_REG <= (others => '0');
+			else
 			sel := REN_2 & REN_1 & REN_0;
 			IF sel /= "011" THEN
 				ACC_REG <= DATA_BUS_IN;
 			END IF;
-
+			end if;
 		END IF;
 
 	END PROCESS;
@@ -167,8 +173,11 @@ BEGIN
 	TREG : PROCESS (CLK, TREG_EN)
 	BEGIN
 		IF rising_edge(CLK)and TREG_EN = '1' THEN
-			
-				T_REG <= DATA_BUS_IN;
+				if RST = '1' then
+					T_REG <= (others => '0');
+				else
+					T_REG <= DATA_BUS_IN;
+				end if;
 		END IF;
 
 	END PROCESS;
@@ -177,6 +186,10 @@ BEGIN
 		VARIABLE sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
 	BEGIN
 		IF rising_edge(CLK) and FG_WEN = '1' THEN
+		
+		if RST = '1' then
+				FG_REG <= (others => '0');
+		else
 			sel := REN_2 & REN_1 & REN_0;
 				IF sel /= "100" THEN
 					if FG_SEL_IN = '1' then
@@ -185,26 +198,40 @@ BEGIN
 					FG_REG <= FG_OUT;
 				end if;
 			END IF;
+		end if;
 		END IF;
 	END PROCESS;
 	SYNC_REG : PROCESS (CLK)
 	BEGIN
 		IF rising_edge(CLK) THEN
+		if RST = '1' then
+			SEL_SYNC <= (others => '0');
+		else
 			SEL_SYNC <= (REN_2 & REN_1 & REN_0);
+		end if;
 		END IF;
 	END PROCESS;
 	
 	SYNC_LATCH_SIG : PROCESS (CLK)
 	BEGIN
 		IF rising_edge(CLK) THEN
+			if RST = '1' then
+				ADDR_LATCH_DIS_SYNC <= '0';
+			else
 			ADDR_LATCH_DIS_SYNC <= ADDR_LATCH_DIS; 
+			end if;
 		END IF;
 	END PROCESS;
 
 	PREV_OUT_REG : PROCESS (CLK)
 	BEGIN
 		IF rising_edge(CLK) THEN
+			if RST = '1' then
+				PREV_OUT <= (others => '0');
+			else
+			
 			PREV_OUT <= DATA_BUS_IN;
+			end if;
 		END IF;
 	END PROCESS;
 
@@ -264,7 +291,8 @@ BEGIN
 		INSTRUCTION => DATA_BUS_IN,
 
 		FLAGS		=> FG_REG,
-		READY => READY
+		READY => READY,
+		RST => RST
 	);
 
 	ArithLU : ALU PORT MAP(
@@ -287,7 +315,8 @@ BEGIN
 		READ_REG => READ_REG,
 		WRITE_REG => REG_ARR_WEN,
 		BYTE_SEL => BYTE_SEL,
-		CLK => CLK
+		CLK => CLK,
+		RST => RST
 	);
 
 	READ_REG <= '1' WHEN (REN_2 & REN_1 & REN_0) = STD_LOGIC_VECTOR(to_unsigned(1, 3)) ELSE

@@ -21,22 +21,39 @@ architecture Behavioral of RAM_64Kx8 is
 	 --		equivalent in C
 	 -- While ( Reg1 != 255) ++Reg1; 
 	 
-	 16#0000# => X"B2", --MOV TO REG 2 VALUE 0xFF02
-	 16#0001# => X"03", --LSB
-	 16#0002# => X"00", --MSB
+--	 16#0000# => X"B2", --MOV TO REG 2 VALUE 0xFF02
+--	 16#0001# => X"EE", --LSB
+--	 16#0002# => X"EE", --MSB
+--	 
+--	 
+--	 16#0003# => X"9A", --JNZ TO DIRECTION IN REG 1 (SRC REG1 encoded in this byte)
+--	 16#0004# => X"9E", --REG 1
+--
+--	 16#EEEE# => X"61", --MOV TO REG 1 VALUE: 255
+--	 16#EEEF# => X"FF",
+--	 
+--	 16#EEF0# => X"00", --ADD 1 TO REG 0
+--	 16#EEF1# => X"01",
+--	
+--	 16#EEF2# => X"19",-- SUB TO REG 1 REG 0
+--    16#EEF3# => X"18",
+--	 
+--	 16#EEF4# => X"9A", --JNZ TO DIRECTION IN REG 1 (SRC REG1 encoded in this byte)
+--	 16#EEF5# => X"9E", --REG 1
+--	 --16#0008# => X"00",
 
-	 16#0003# => X"61", --MOV TO REG 1 VALUE: 255
-	 16#0004# => X"FF",
+	 16#0000# => X"61", --MOV TO REG 1 VALUE: 255
+	 16#0001# => X"FF",
 	 
-	 16#0005# => X"00", --ADD 1 TO REG 0
-	 16#0006# => X"01",
+	 16#0002# => X"00", --ADD 1 TO REG 0
+	 16#0003# => X"01",
 	
-	 16#0007# => X"19",-- SUB TO REG 1 REG 0
-    16#0008# => X"18",
+	 16#0004# => X"19",-- SUB TO REG 1 REG 0
+    16#0005# => X"18",
 	 
-	 16#0009# => X"9A", --JNZ TO DIRECTION IN REG 1 (SRC REG1 encoded in this byte)
-	 16#000A# => X"9E", --REG 1
-	 --16#0008# => X"00",
+	 16#0006# => X"9A", --JNZ TO DIRECTION IN REG 2 (SRC REG1 encoded in this byte)
+	 16#0007# => X"9E", --REG 2
+	 
 	 
 	 
 --	 16#0000# =>  X"10",-- SUB TO REG 0 INST (IMM8)
