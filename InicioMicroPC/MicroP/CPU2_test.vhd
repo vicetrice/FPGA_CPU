@@ -18,7 +18,7 @@ architecture behavior of tb_CPU2 is
             EXTERN_READ: out STD_LOGIC;
             EXTERN_WRITE: out STD_LOGIC
 				;
-            ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(8 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+            ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
@@ -46,7 +46,7 @@ architecture behavior of tb_CPU2 is
     signal DATA_BUS_IN_EXTERN : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
     signal EXTERN_READ : STD_LOGIC;
     signal EXTERN_WRITE : STD_LOGIC;
-    signal ROM_ADDR_OUT: STD_LOGIC_VECTOR(8 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+    signal ROM_ADDR_OUT: STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 SIGNAL ALU_OUT_EXT:  STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 SIGNAL STAT_OUT: STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 signal REG_SEL_OUT_CPU :  STD_LOGIC_VECTOR(2 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!

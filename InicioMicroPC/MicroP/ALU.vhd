@@ -36,10 +36,23 @@ begin
                 Res := add_sub(7 downto 0);
 					 StatOut(1) <= add_sub(8);
                 
-            when "0010" =>  -- NAND (A NAND B)
-                Res := A nand B;
+            when "0010" =>  -- CMP (A CMP B)
+					 if( A < B) then
+					 Res := X"FF";
+					 StatOut(3) <= '1';
+					 StatOut(2) <= '0';
+					 elsif A > B then
+					 Res := X"FF";
+					 StatOut(3) <= '0';
+					 StatOut(2) <= '0';
+					 else
+					 StatOut(3) <= '0';
+					 StatOut(2) <= '1';
+					 Res := X"00";
+					 end if;
 
-            when "0011" =>  -- SUBB (A - B - Carry)
+
+            when "0011" =>  -- SBB (A - B - Carry)
                 add_sub := ('0' & A) - ('0' & B) - StatIn(1);
                 Res := add_sub(7 downto 0);
 					 StatOut(1) <= add_sub(8);
