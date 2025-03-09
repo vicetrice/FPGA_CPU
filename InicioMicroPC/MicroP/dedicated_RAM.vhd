@@ -17,17 +17,17 @@ architecture Behavioral of RAM_64Kx8 is
     type RAM_Array is array (0 to 65535) of std_logic_vector(7 downto 0);
     signal RAM : RAM_Array := (
 	 
-	 --PROGRAM
+	 --			PROGRAM
 	 --		equivalent in C
-	 -- While ( Reg1 != 20) ++Reg1; 
-	 16#0000# => X"61", --MOV TO REG 1 VALUE: 20
-	 16#0001# => X"14",
+	 -- While ( Reg1 != 255) ++Reg1; 
+	 16#0000# => X"61", --MOV TO REG 1 VALUE: 255
+	 16#0001# => X"FF",
 	 
-	 16#0002# => X"00", --ADD 1 TO REG 1
+	 16#0002# => X"00", --ADD 1 TO REG 0
 	 16#0003# => X"01",
 	
-	 16#0004# =>  X"19",-- SUB TO REG 1 REG 0
-    16#0005# =>  X"18",
+	 16#0004# => X"19",-- SUB TO REG 1 REG 0
+    16#0005# => X"18",
 	 
 	 16#0006# => X"96", --JNZ TO DIRECTION 0x0000
 	 16#0007# => X"00",
