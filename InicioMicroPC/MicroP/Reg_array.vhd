@@ -10,14 +10,13 @@ entity Reg_array is
         REG_SEL2: in STD_LOGIC_VECTOR(2 downto 0); -- REGISTER SELECT FOR ADDR LATCH
         DATA_OUT_BUS: out STD_LOGIC_VECTOR(7 downto 0);
 		  DATA_IN_BUS: in STD_LOGIC_VECTOR(7 downto 0);
-		  ADDR_BUS_LATCH: out STD_LOGIC_VECTOR(15 downto 0);
+		  ADDR_REG_OUT_BUS: out STD_LOGIC_VECTOR(15 downto 0);
 		  INC_DEC: in STD_LOGIC;
 		  INC_DEC_EN: IN STD_LOGIC;
         READ_REG: in STD_LOGIC;  -- READ SIGNAL
         WRITE_REG: in STD_LOGIC; -- WRITE SIGNAL
         BYTE_SEL: in STD_LOGIC; -- 0 = LSB, 1 = MSB
-		  CLK: in STD_LOGIC;
-		  RST: in STD_LOGIC
+		  CLK: in STD_LOGIC
 		  
     );
 end Reg_array;
@@ -73,7 +72,7 @@ begin
 		  
 
     end process;
-	 		  					ADDR_BUS_LATCH <= registers(to_integer(unsigned(REG_SEL2)));				
+	 		  					ADDR_REG_OUT_BUS<= registers(to_integer(unsigned(REG_SEL2)));				
 
 	 
 end Behavioral;

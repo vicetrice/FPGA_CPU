@@ -44,7 +44,7 @@ ARCHITECTURE Behavioral OF CPU IS
 			TREG_EN : OUT STD_LOGIC; -- 6: Temporary Register enable  
 			IR_REG_SEL_BYTE : OUT STD_LOGIC; -- 7: IR_REG_SEL_BYTE
 			INC_DEC_EN : OUT STD_LOGIC; -- 8: Instruction Pointer increment/decrement control  
-			ADDR_LATCH_DIS : OUT STD_LOGIC; -- 9: Address latch Write disable  
+			ADDR_AUX_REG_DIS : OUT STD_LOGIC; -- 9: aux Address reg Write disable  
 			REN_2 : OUT STD_LOGIC; -- 10:  (used to multiplex reading)
 			RAM_WEN : OUT STD_LOGIC; -- 11: RAM write enable  
 			BYTE_SEL : OUT STD_LOGIC; -- 12: BYTE SELECT  
@@ -53,6 +53,7 @@ ARCHITECTURE Behavioral OF CPU IS
 			INC_DEC : OUT STD_LOGIC; --15: SELECT IF INC OR DEC 1:INC , 0: DEC
 			FG_SEL_IN : OUT STD_LOGIC; --16: SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS
 			ADDR_SEL: OUT STD_LOGIC;--18: SELECT WHICH DIRECTION USE FOR ADDRESS BUS: 0: IP, 1:SP
+			LOAD_AUX_ADDR_REG: OUT STD_LOGIC; --19: IF 1: LOAD THE ADDRESS OUT OF THE REG_ARRAY
 
 			-- SPECIAL OUTS --
 			OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
@@ -63,7 +64,7 @@ ARCHITECTURE Behavioral OF CPU IS
 			-- INS --
 			CLK : IN STD_LOGIC;
 			INSTRUCTION : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-			FLAGS: in STD_LOGIC_VECTOR(7 downto 0);
+			ZFLAG: in STD_LOGIC;
 			READY : IN STD_LOGIC;
 			RST: in STD_LOGIC
 		);
@@ -89,14 +90,13 @@ ARCHITECTURE Behavioral OF CPU IS
         REG_SEL2: in STD_LOGIC_VECTOR(2 downto 0); -- REGISTER SELECT FOR ADDR LATCH
         DATA_OUT_BUS: out STD_LOGIC_VECTOR(7 downto 0);
 		  DATA_IN_BUS: in STD_LOGIC_VECTOR(7 downto 0);
-		  ADDR_BUS_LATCH: out STD_LOGIC_VECTOR(15 downto 0);
+		  ADDR_REG_OUT_BUS: out STD_LOGIC_VECTOR(15 downto 0);
 		  INC_DEC: in STD_LOGIC;
 		  INC_DEC_EN: IN STD_LOGIC;
         READ_REG: in STD_LOGIC;  -- READ SIGNAL
         WRITE_REG: in STD_LOGIC; -- WRITE SIGNAL
         BYTE_SEL: in STD_LOGIC; -- 0 = LSB, 1 = MSB
-		  CLK: in STD_LOGIC;
-		  RST: in STD_LOGIC
+		  CLK: in STD_LOGIC
     );
 	END COMPONENT;
 
@@ -108,6 +108,7 @@ ARCHITECTURE Behavioral OF CPU IS
 	SIGNAL FG_REG : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
 	SIGNAL SEL_SYNC : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
 	SIGNAL PREV_OUT : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+	SIGNAL AUX_ADDR_REG: STD_LOGIC_VECTOR( 15 downto 0) := (others => '0');
 
 	-- CONTROL SIGNALS
 
@@ -118,7 +119,7 @@ ARCHITECTURE Behavioral OF CPU IS
 	SIGNAL TREG_EN : STD_LOGIC; -- 6: Temporary Register enable  
 	SIGNAL IR_REG_SEL_BYTE : STD_LOGIC; -- 7: IR_REG_SEL_BYTE  
 	SIGNAL INC_DEC_EN : STD_LOGIC; -- 8: Instruction Pointer increment/decrement control  
-	SIGNAL ADDR_LATCH_DIS : STD_LOGIC; -- 9: Address latch Write disable  
+	SIGNAL ADDR_AUX_REG_DIS : STD_LOGIC; -- 9: aux Address reg Write disable  
 	SIGNAL REN_2 : STD_LOGIC; -- 10: (used to multiplex reading)
 	SIGNAL RAM_WEN : STD_LOGIC; -- 11: RAM write enable  
 	SIGNAL BYTE_SEL : STD_LOGIC; -- 12: BYTE SELECT  
@@ -126,14 +127,15 @@ ARCHITECTURE Behavioral OF CPU IS
 	SIGNAL INC_DEC : STD_LOGIC; --15: SELECT IF INC OR DEC 1:INC , 0: DEC
 	SIGNAL FG_SEL_IN : STD_LOGIC; --16: SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS
 	SIGNAL ADDR_SEL: STD_LOGIC;--18: SELECT WHICH DIRECTION USE FOR ADDRESS BUS: 0: IP, 1:SP
+	SIGNAL LOAD_AUX_ADDR_REG: STD_LOGIC;
 
 	--SPECIAL SIGNALS
 	SIGNAL OPCODE_OUT : STD_LOGIC_VECTOR(3 DOWNTO 0);
 	SIGNAL REG_SEL_OUT : STD_LOGIC_VECTOR(2 DOWNTO 0);
 	SIGNAL FG_OUT : STD_LOGIC_VECTOR(7 DOWNTO 0);
-	SIGNAL ADDR_BUS_LATCH : STD_LOGIC_VECTOR(15 DOWNTO 0);
+	SIGNAL ADDR_REG_OUT_BUS : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	SIGNAL REG_SEL2: STD_LOGIC_VECTOR(2 downto 0);
-	SIGNAL ADDR_LATCH_DIS_SYNC: STD_LOGIC;
+	SIGNAL ADDR_MUX_CTRL: STD_LOGIC;
 
 
 	SIGNAL ALU_OUT : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -141,18 +143,28 @@ ARCHITECTURE Behavioral OF CPU IS
 	SIGNAL REG_OUTS : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL READ_REG : STD_LOGIC;
 
+	
 BEGIN
 	----------------------------------------------------------------- SPECIAL REGISTERS -----------------------------------------------------------------
 
-	ADDRESS_LATCH : PROCESS (ADDR_LATCH_DIS_SYNC, ADDR_BUS_LATCH)
-		VARIABLE sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
-	BEGIN
-
-		IF ADDR_LATCH_DIS_SYNC /= '1' THEN
-					ADDRESS_BUS <= ADDR_BUS_LATCH;
-		END IF;
-
-	END PROCESS;
+	ADDRESS_REG_AUX : PROCESS (CLK)
+BEGIN
+    if RISING_EDGE(CLK) then
+        if RST = '1' then
+            AUX_ADDR_REG <= X"0000";
+        else
+            if INC_DEC_EN = '1' and READ_REG = REG_ARR_WEN  then
+                if INC_DEC = '1' then
+                    AUX_ADDR_REG <= STD_LOGIC_VECTOR(unsigned(AUX_ADDR_REG) + 1);
+                else
+                    AUX_ADDR_REG <= STD_LOGIC_VECTOR(unsigned(AUX_ADDR_REG) - 1);
+                end if;
+            elsif LOAD_AUX_ADDR_REG = '1' then
+                AUX_ADDR_REG <= ADDR_REG_OUT_BUS;
+            end if;
+        end if;
+    end if;
+END PROCESS;
 	
 	ACCM : PROCESS (CLK, ACC_WEN)
 		VARIABLE sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
@@ -212,16 +224,6 @@ BEGIN
 		END IF;
 	END PROCESS;
 	
-	SYNC_LATCH_SIG : PROCESS (CLK)
-	BEGIN
-		IF rising_edge(CLK) THEN
-			if RST = '1' then
-				ADDR_LATCH_DIS_SYNC <= '0';
-			else
-			ADDR_LATCH_DIS_SYNC <= ADDR_LATCH_DIS; 
-			end if;
-		END IF;
-	END PROCESS;
 
 	PREV_OUT_REG : PROCESS (CLK)
 	BEGIN
@@ -235,7 +237,7 @@ BEGIN
 		END IF;
 	END PROCESS;
 
-	----------------------------------------------------------------------------------------------------------------------------------
+	------------------------------------------------------------ MULTIPLEXERS ---------------------------------------------
 	MUX_DATA_OUT : PROCESS (SEL_SYNC, ACC_REG, FG_REG, REG_OUTS, DATA_BUS_IN_EXTERN, ALU_OUT, PREV_OUT, BYTE_SEL)
 	BEGIN
 		CASE SEL_SYNC IS
@@ -263,7 +265,18 @@ BEGIN
 			REG_SEL2 <= "110"; --0x6 IP
 		end case;
 	end process;
-
+	
+	MUX_FINAL_ADDR_BUS: PROCESS(ADDR_MUX_CTRL,AUX_ADDR_REG,ADDR_REG_OUT_BUS)
+	begin
+		case ADDR_MUX_CTRL IS
+		when '1' =>
+			ADDRESS_BUS <= AUX_ADDR_REG; 
+		when others =>
+			ADDRESS_BUS <= ADDR_REG_OUT_BUS ; 
+		end case;
+	end process;
+	
+	
 	------------------------------------ COMPONENTS ------------------------------------
 	CU : Control_Unit PORT MAP(
 		REN_0 => REN_0,
@@ -273,7 +286,7 @@ BEGIN
 		TREG_EN => TREG_EN,
 		IR_REG_SEL_BYTE => IR_REG_SEL_BYTE,
 		INC_DEC_EN => INC_DEC_EN,
-		ADDR_LATCH_DIS => ADDR_LATCH_DIS,
+		ADDR_AUX_REG_DIS => ADDR_AUX_REG_DIS,
 		REN_2 => REN_2,
 		RAM_WEN => RAM_WEN,
 		BYTE_SEL => BYTE_SEL,
@@ -281,6 +294,8 @@ BEGIN
 		INC_DEC => INC_DEC,
 		FG_SEL_IN => FG_SEL_IN,
 		ADDR_SEL => ADDR_SEL,
+		LOAD_AUX_ADDR_REG => LOAD_AUX_ADDR_REG,
+
 
 		
 		OPCODE_OUT => OPCODE_OUT,
@@ -290,7 +305,7 @@ BEGIN
 		CLK => CLK,
 		INSTRUCTION => DATA_BUS_IN,
 
-		FLAGS		=> FG_REG,
+		ZFLAG		=> FG_REG(0),
 		READY => READY,
 		RST => RST
 	);
@@ -309,15 +324,18 @@ BEGIN
 		REG_SEL => REG_SEL_OUT,
 		DATA_OUT_BUS => REG_OUTS,
 		DATA_IN_BUS => DATA_BUS_IN,
-		ADDR_BUS_LATCH => ADDR_BUS_LATCH,
+		ADDR_REG_OUT_BUS => ADDR_REG_OUT_BUS,
 		INC_DEC => INC_DEC,
 		INC_DEC_EN => INC_DEC_EN,
 		READ_REG => READ_REG,
 		WRITE_REG => REG_ARR_WEN,
 		BYTE_SEL => BYTE_SEL,
-		CLK => CLK,
-		RST => RST
+		CLK => CLK
 	);
+	
+	------------------------------------ SPECIAL COMBINATIONAL LOGIC ----------------------------------------
+
+	ADDR_MUX_CTRL <= RST or ADDR_AUX_REG_DIS;
 
 	READ_REG <= '1' WHEN (REN_2 & REN_1 & REN_0) = STD_LOGIC_VECTOR(to_unsigned(1, 3)) ELSE
 		'0';

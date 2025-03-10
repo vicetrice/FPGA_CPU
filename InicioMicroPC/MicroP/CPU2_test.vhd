@@ -11,6 +11,7 @@ architecture behavior of tb_CPU2 is
     component CPU2
         port(
             CLK : in STD_LOGIC;
+				RST: in STD_LOGIC;
             READY : in STD_LOGIC;
             DATA_BUS_OUT : out STD_LOGIC_VECTOR(7 downto 0);
             ADDRESS_BUS : out STD_LOGIC_VECTOR(15 downto 0);
@@ -40,6 +41,7 @@ architecture behavior of tb_CPU2 is
 
     -- Signals
     signal CLK : STD_LOGIC := '0';
+	 signal RST : STD_LOGIC := '0';
     signal READY : STD_LOGIC := '0';
     signal DATA_BUS_OUT : STD_LOGIC_VECTOR(7 downto 0);
     signal ADDRESS_BUS : STD_LOGIC_VECTOR(15 downto 0);
@@ -63,10 +65,22 @@ architecture behavior of tb_CPU2 is
 begin
 		
 		READY <= '1';
+		RST <= '0';
+		--process
+		
+		--begin
+		--RST <= '1';
+		--wait for 10 ns;
+		--RST <= '0';
+		--wait;
+		
+		--end process;
+		
     -- Instancia de CPU2
     uut: CPU2
         port map (
             CLK => CLK,
+				RST => RST,
             READY => READY,
             DATA_BUS_OUT => DATA_BUS_OUT,
             ADDRESS_BUS => ADDRESS_BUS,

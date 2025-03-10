@@ -9,7 +9,7 @@ ENTITY Control_Unit IS
     -- 001: REGISTERS
     -- 010: RAM
     -- 011: ACC
-    -- 100: FLAGS
+    -- 100: ZFLAG
     -- 110: ALU
     --TODO: FIX BYTE_SEL, MAYBE ADD MORE CONTROL SIGNALS 
     PORT (
@@ -22,7 +22,7 @@ ENTITY Control_Unit IS
         TREG_EN : OUT STD_LOGIC; -- 6: Temporary Register enable  
         IR_REG_SEL_BYTE : OUT STD_LOGIC; -- 7: Select which byte of the 16-bit IR to use for register selection 0: LSB, 1:MSB.   
         INC_DEC_EN : OUT STD_LOGIC; -- 8: Instruction Pointer increment/decrement control  
-        ADDR_LATCH_DIS : OUT STD_LOGIC; -- 9: Address latch Write disable  
+        ADDR_AUX_REG_DIS : OUT STD_LOGIC; -- 9: aux Address register Write disable  
         REN_2 : OUT STD_LOGIC; -- 10: (used to multiplex reading)
         RAM_WEN : OUT STD_LOGIC; -- 11: RAM write enable  
         BYTE_SEL : OUT STD_LOGIC; -- 12: BYTE SELECT  
@@ -32,10 +32,11 @@ ENTITY Control_Unit IS
         FG_SEL_IN : OUT STD_LOGIC; --16: SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS, it works as byte select for reg when ALU op
         --17: BYTE SELECT FOR INSTRUCTION REGISTER
         ADDR_SEL : OUT STD_LOGIC;--18: SELECT WHICH DIRECTION USE FOR ADDRESS BUS: 0: IP, 1:SP
-
+			LOAD_AUX_ADDR_REG: OUT STD_LOGIC; --19: IF 1: LOAD THE ADDRESS OUT OF THE REG_ARRAY
         -- SPECIAL OUTS --
         OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
         REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
+		  
 
         --TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
         ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(8 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
@@ -43,13 +44,15 @@ ENTITY Control_Unit IS
         -- INS --
         CLK : IN STD_LOGIC;
         INSTRUCTION : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-        FLAGS : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+        ZFLAG : IN STD_LOGIC;
         READY : IN STD_LOGIC;
 		  RST: in STD_LOGIC
     );
 END Control_Unit;
 
 ARCHITECTURE Behavioral OF Control_Unit IS
+
+
 
     -- Declaration of ROM component
     COMPONENT ROM_512x24
@@ -67,8 +70,12 @@ ARCHITECTURE Behavioral OF Control_Unit IS
     SIGNAL instruction_reg : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0'); -- Instruction register
     SIGNAL CONTROL_OUT : STD_LOGIC_VECTOR(23 DOWNTO 0) := (OTHERS => '0'); -- Control signal output from ROM
 	 SIGNAL JNZ: STD_LOGIC;
+	 
+	
 BEGIN
 
+
+		
     -- Instruction Register process (Store the instruction in the instruction register)
     INST_REG : PROCESS (CLK)
     BEGIN
@@ -108,7 +115,7 @@ BEGIN
 
     -- Control logic process to generate the address and control signals
     
-    CL : PROCESS (instruction_reg, MIC)
+    CL : PROCESS (instruction_reg, MIC, RST)
         VARIABLE opcode : STD_LOGIC_VECTOR(3 DOWNTO 0);
         VARIABLE imm_or_reg : STD_LOGIC;
         --VARIABLE reg_sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
@@ -124,6 +131,9 @@ BEGIN
         --reg_sel := instruction_reg(2 DOWNTO 0);
 
 		  JNZ <= '0';
+		  if RST = '1' then
+					addr <= "11111" & STD_LOGIC_VECTOR(MIC);
+		  else
         CASE opcode IS
             WHEN X"6" =>
                 addr <= "0001" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --MOV OP
@@ -136,7 +146,8 @@ BEGIN
                 addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP (EXCEPT CMP AND SHL/SHR)
 
         END CASE;
-
+		  end if;
+		  
         -- Assign values to output signals
     END PROCESS;
     PROCESS (CONTROL_OUT(6), instruction_reg)
@@ -164,7 +175,7 @@ BEGIN
     
     REG_ARR_WEN <= CONTROL_OUT(2) 
     WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
-    AND (FLAGS(0) = '0' or JNZ /= '1')
+    AND (ZFLAG = '0' or JNZ /= '1')
     ELSE '0'; -- Register Array Write Enable
     
     REN_1 <= CONTROL_OUT(3) 
@@ -173,12 +184,12 @@ BEGIN
     
     ACC_WEN <= CONTROL_OUT(4) 
     WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
-    AND (FLAGS(0) = '0' or JNZ /= '1')
+    AND (ZFLAG = '0' or JNZ /= '1')
     ELSE '0'; -- Accumulator Write Enable
     
     TREG_EN <= CONTROL_OUT(5) 
     WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
-    AND (FLAGS(0) = '0' or JNZ /= '1')
+    AND (ZFLAG = '0' or JNZ /= '1')
     ELSE '0'; -- Temporary Register Enable
     
     IR_REG_SEL_BYTE <= CONTROL_OUT(6) 
@@ -189,8 +200,8 @@ BEGIN
     WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
     ELSE '0'; -- Instruction Pointer Increment/Decrement
     
-    ADDR_LATCH_DIS <= CONTROL_OUT(8) 
-    WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
+    ADDR_AUX_REG_DIS <= CONTROL_OUT(8) 
+    WHEN (READY /= '0' Or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
     ELSE '0'; -- Instruction Pointer Enable
     
     REN_2 <= CONTROL_OUT(9) 
@@ -199,7 +210,7 @@ BEGIN
     
     RAM_WEN <= CONTROL_OUT(10) 
     WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
-    AND (FLAGS(0) = '0' or JNZ /= '1')
+    AND (ZFLAG = '0' or JNZ /= '1')
     ELSE '0'; -- RAM Write Enable
     
     BYTE_SEL <= CONTROL_OUT(11) 
@@ -208,7 +219,7 @@ BEGIN
     
     FG_WEN <= CONTROL_OUT(13) 
     WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
-    AND (FLAGS(0) = '0' or JNZ /= '1')
+    AND (ZFLAG = '0' or JNZ /= '1')
     ELSE '0'; --FG register WE;
     
     INC_DEC <= CONTROL_OUT(14) 
@@ -222,8 +233,13 @@ BEGIN
     ADDR_SEL <= CONTROL_OUT(17) 
     WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
     ELSE '0' ;
+	 
+	 LOAD_AUX_ADDR_REG <= CONTROL_OUT(18) 
+    WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
+    ELSE '0' ;
 
 
     ROM_ADDR_OUT <= addr; -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+	 
 
 END Behavioral;

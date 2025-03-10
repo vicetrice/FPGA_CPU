@@ -51,20 +51,20 @@ architecture Behavioral of ROM_512x24 is
 				--JNZ/LDA IMM8 MICROCODE
 				8#100# => X"004088", --FETCH
 				8#101# => X"004089", --DECODE
-				8#102# => X"004098", --EXC
-				8#103# => X"00090E", --EXC
-				8#104# => X"000104", --EXC
-				8#105# => X"001000", --SECURITY CYCLE FOR LATCH
+				8#102# => X"004198", --EXC
+				8#103# => X"00090E", --EXC/SAVE
+				8#104# => X"000104", --EXC/SAVE
+				8#105# => X"041100", --EXC/SAVE
 				
 					--JNZ/LDA REG MICROCODE
 				8#120# => X"004088", --FETCH
 				8#121# => X"004089", --DECODE
-				8#122# => X"010003", --EXC
-				8#123# => X"000812", --EXC
+				8#122# => X"010103", --EXC
+				8#123# => X"000912", --EXC
 				8#124# => X"00094E", --EXC/SAVE
 				8#125# => X"000144", --EXC/SAVE
-				8#126# => X"001000", --SECURITY CYCLE FOR LATCH
-				
+				8#126# => X"041100", --EXC/SAVE
+
 				
 				
 				
