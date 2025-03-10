@@ -65,16 +65,16 @@ architecture behavior of tb_CPU2 is
 begin
 		
 		READY <= '1';
-		RST <= '0';
-		--process
-		
-		--begin
-		--RST <= '1';
-		--wait for 10 ns;
 		--RST <= '0';
-		--wait;
+		process
 		
-		--end process;
+		begin
+		RST <= '1';
+		wait for 100 ns;
+		RST <= '0';
+		wait;
+		
+		end process;
 		
     -- Instancia de CPU2
     uut: CPU2

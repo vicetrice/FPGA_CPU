@@ -64,6 +64,14 @@ architecture Behavioral of ROM_512x24 is
 				8#124# => X"00094E", --EXC/SAVE
 				8#125# => X"000144", --EXC/SAVE
 				8#126# => X"041100", --EXC/SAVE
+				
+				--RST MICROCODE (SAME AS LDA BUT IT WILL USE THE AUX ADDR REG)
+				8#760# => X"004188", --FETCH
+				8#761# => X"004189", --DECODE
+				8#762# => X"004198", --EXC
+				8#763# => X"00090E", --EXC/SAVE
+				8#764# => X"000104", --EXC/SAVE
+				8#765# => X"041100", --EXC/SAVE
 
 				
 				

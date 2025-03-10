@@ -151,7 +151,7 @@ BEGIN
 BEGIN
     if RISING_EDGE(CLK) then
         if RST = '1' then
-            AUX_ADDR_REG <= X"0000";
+            AUX_ADDR_REG <= X"0000"; --IP START VALUE AFTER RST
         else
             if INC_DEC_EN = '1' and READ_REG = REG_ARR_WEN  then
                 if INC_DEC = '1' then

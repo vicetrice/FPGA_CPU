@@ -70,10 +70,23 @@ ARCHITECTURE Behavioral OF Control_Unit IS
     SIGNAL instruction_reg : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0'); -- Instruction register
     SIGNAL CONTROL_OUT : STD_LOGIC_VECTOR(23 DOWNTO 0) := (OTHERS => '0'); -- Control signal output from ROM
 	 SIGNAL JNZ: STD_LOGIC;
+	 SIGNAL RST_CYCLES: STD_LOGIC_VECTOR(5 downto 0);
 	 
 	
 BEGIN
 
+
+		RST_ROUTINE: process(CLK)
+		begin
+			if rising_edge(CLK) then
+				if RST = '1' then
+					
+				RST_CYCLES <= (others => '1');
+				else
+				RST_CYCLES <=  '0' & RST_CYCLES(5 downto 1);
+				end if;
+			end if;
+		end process;
 
 		
     -- Instruction Register process (Store the instruction in the instruction register)
@@ -115,7 +128,7 @@ BEGIN
 
     -- Control logic process to generate the address and control signals
     
-    CL : PROCESS (instruction_reg, MIC, RST)
+    CL : PROCESS (instruction_reg, MIC, RST_CYCLES)
         VARIABLE opcode : STD_LOGIC_VECTOR(3 DOWNTO 0);
         VARIABLE imm_or_reg : STD_LOGIC;
         --VARIABLE reg_sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
@@ -131,7 +144,7 @@ BEGIN
         --reg_sel := instruction_reg(2 DOWNTO 0);
 
 		  JNZ <= '0';
-		  if RST = '1' then
+		  if RST_CYCLES(0) = '1' then
 					addr <= "11111" & STD_LOGIC_VECTOR(MIC);
 		  else
         CASE opcode IS
