@@ -36,6 +36,7 @@ ENTITY Control_Unit IS
         -- SPECIAL OUTS --
         OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
         REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
+		  RST_SYNC: OUT STD_LOGIC;
 		  
 
         --TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -70,7 +71,7 @@ ARCHITECTURE Behavioral OF Control_Unit IS
     SIGNAL instruction_reg : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0'); -- Instruction register
     SIGNAL CONTROL_OUT : STD_LOGIC_VECTOR(23 DOWNTO 0) := (OTHERS => '0'); -- Control signal output from ROM
 	 SIGNAL JNZ: STD_LOGIC;
-	 SIGNAL RST_CYCLES: STD_LOGIC_VECTOR(5 downto 0);
+	 SIGNAL RST_CYCLES: STD_LOGIC_VECTOR(8 downto 0);
 	 
 	
 BEGIN
@@ -83,7 +84,7 @@ BEGIN
 					
 				RST_CYCLES <= (others => '1');
 				else
-				RST_CYCLES <=  '0' & RST_CYCLES(5 downto 1);
+				RST_CYCLES <=  '0' & RST_CYCLES(8 downto 1);
 				end if;
 			end if;
 		end process;
@@ -93,7 +94,7 @@ BEGIN
     INST_REG : PROCESS (CLK)
     BEGIN
         IF rising_edge(CLK) THEN
-		  if RST = '1' then
+		  if RST_CYCLES(6) = '1' then
 					instruction_reg <= (others => '0');
 		  else
             IF CONTROL_OUT(0) = '1' THEN
@@ -112,7 +113,7 @@ BEGIN
     BEGIN
         IF rising_edge(CLK) THEN
 		  
-		  if RST = '1' then
+		  if RST_CYCLES(6) = '1' then
 				MIC <= (others => '0');
 		  else
             IF (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3))) THEN
@@ -253,6 +254,7 @@ BEGIN
 
 
     ROM_ADDR_OUT <= addr; -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+	 RST_SYNC <= RST_CYCLES(6);
 	 
 
 END Behavioral;

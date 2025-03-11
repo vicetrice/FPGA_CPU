@@ -3,7 +3,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 
---DUAL PORT RAM (NOT REALLY BUT IT OPTIMIZE CLOCK CLYCLES, IT ALSO REDUCE THE USE OF RESOURCES OF THE FPGA)
 entity Reg_array is
     port(
         REG_SEL: in STD_LOGIC_VECTOR(2 downto 0); -- REGISTER SELECT FOR DATA BUS
@@ -16,7 +15,9 @@ entity Reg_array is
         READ_REG: in STD_LOGIC;  -- READ SIGNAL
         WRITE_REG: in STD_LOGIC; -- WRITE SIGNAL
         BYTE_SEL: in STD_LOGIC; -- 0 = LSB, 1 = MSB
-		  CLK: in STD_LOGIC
+		  CLK: in STD_LOGIC;
+		  RST: in STD_LOGIC
+		  
 		  
     );
 end Reg_array;
@@ -30,11 +31,13 @@ begin
 
 
 
-    WR_RD: process(CLK)
+    WR_RD: process(CLK,RST)
     variable sel: STD_LOGIC_VECTOR(2 downto 0);
     begin
         if rising_edge(CLK) then
-          
+         if RST = '1' then
+			registers <=(others => (others => '0')); --USING THIS RST FOR THE IMPLEMENTATION; DONT KNOW WHAT IS WRONG IF YOU USE DUAL PORT RAM
+			else
 			  --WRITE
 			if WRITE_REG = READ_REG then
                 sel := REG_SEL2;
@@ -67,6 +70,7 @@ begin
 				END IF;
 				
             end if;
+				end if;
 				
         end if;
 		  

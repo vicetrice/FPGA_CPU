@@ -58,6 +58,7 @@ ARCHITECTURE Behavioral OF CPU IS
 			-- SPECIAL OUTS --
 			OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
 			REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
+			RST_SYNC: OUT STD_LOGIC;
 
 			--TESTS!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			ROM_ADDR_OUT : OUT STD_LOGIC_VECTOR(8 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
@@ -96,7 +97,8 @@ ARCHITECTURE Behavioral OF CPU IS
         READ_REG: in STD_LOGIC;  -- READ SIGNAL
         WRITE_REG: in STD_LOGIC; -- WRITE SIGNAL
         BYTE_SEL: in STD_LOGIC; -- 0 = LSB, 1 = MSB
-		  CLK: in STD_LOGIC
+		  CLK: in STD_LOGIC;
+		  RST: in STD_LOGIC
     );
 	END COMPONENT;
 
@@ -135,7 +137,7 @@ ARCHITECTURE Behavioral OF CPU IS
 	SIGNAL FG_OUT : STD_LOGIC_VECTOR(7 DOWNTO 0);
 	SIGNAL ADDR_REG_OUT_BUS : STD_LOGIC_VECTOR(15 DOWNTO 0);
 	SIGNAL REG_SEL2: STD_LOGIC_VECTOR(2 downto 0);
-	SIGNAL ADDR_MUX_CTRL: STD_LOGIC;
+	SIGNAL RST_SYNC:  STD_LOGIC;
 
 
 	SIGNAL ALU_OUT : STD_LOGIC_VECTOR(7 DOWNTO 0);
@@ -150,73 +152,80 @@ BEGIN
 	ADDRESS_REG_AUX : PROCESS (CLK)
 BEGIN
     if RISING_EDGE(CLK) then
-        if RST = '1' then
-            AUX_ADDR_REG <= X"0000"; --IP START VALUE AFTER RST
+        if RST_SYNC = '1' then
+            AUX_ADDR_REG <= X"0000"; --IP START VALUE AFTER RST_SYNC
         else
-            if INC_DEC_EN = '1' and READ_REG = REG_ARR_WEN  then
+				if LOAD_AUX_ADDR_REG = '1' then
+                AUX_ADDR_REG <= ADDR_REG_OUT_BUS;
+            elsif INC_DEC_EN = '1' and READ_REG = REG_ARR_WEN  then
                 if INC_DEC = '1' then
                     AUX_ADDR_REG <= STD_LOGIC_VECTOR(unsigned(AUX_ADDR_REG) + 1);
                 else
                     AUX_ADDR_REG <= STD_LOGIC_VECTOR(unsigned(AUX_ADDR_REG) - 1);
                 end if;
-            elsif LOAD_AUX_ADDR_REG = '1' then
-                AUX_ADDR_REG <= ADDR_REG_OUT_BUS;
+            
             end if;
         end if;
     end if;
 END PROCESS;
 	
-	ACCM : PROCESS (CLK, ACC_WEN)
+	ACCM : PROCESS (CLK)
 		VARIABLE sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
 	BEGIN
-		IF rising_edge(CLK) and ACC_WEN = '1' THEN
-			if RST = '1' then
+		IF rising_edge(CLK) THEN
+			if RST_SYNC = '1' then
 				ACC_REG <= (others => '0');
 			else
+			if ACC_WEN = '1' then 
 			sel := REN_2 & REN_1 & REN_0;
 			IF sel /= "011" THEN
 				ACC_REG <= DATA_BUS_IN;
 			END IF;
 			end if;
+			end if;
 		END IF;
 
 	END PROCESS;
 
-	TREG : PROCESS (CLK, TREG_EN)
+	TREG : PROCESS (CLK)
 	BEGIN
-		IF rising_edge(CLK)and TREG_EN = '1' THEN
-				if RST = '1' then
+		IF rising_edge(CLK) THEN
+				if RST_SYNC = '1' then
 					T_REG <= (others => '0');
 				else
+				if TREG_EN = '1' then
 					T_REG <= DATA_BUS_IN;
+				end if;
 				end if;
 		END IF;
 
 	END PROCESS;
 
-	FG : PROCESS (CLK, FG_WEN)
+	FG : PROCESS (CLK)
 		VARIABLE sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
 	BEGIN
-		IF rising_edge(CLK) and FG_WEN = '1' THEN
+		IF rising_edge(CLK)  THEN
 		
-		if RST = '1' then
+		if RST_SYNC = '1' then
 				FG_REG <= (others => '0');
 		else
+			if FG_WEN = '1' then
 			sel := REN_2 & REN_1 & REN_0;
 				IF sel /= "100" THEN
 					if FG_SEL_IN = '1' then
 					FG_REG <= DATA_BUS_IN;
 					ELSE
 					FG_REG <= FG_OUT;
-				end if;
-			END IF;
+					end if;
+				END IF;
+			end if;
 		end if;
 		END IF;
 	END PROCESS;
 	SYNC_REG : PROCESS (CLK)
 	BEGIN
 		IF rising_edge(CLK) THEN
-		if RST = '1' then
+		if RST_SYNC = '1' then
 			SEL_SYNC <= (others => '0');
 		else
 			SEL_SYNC <= (REN_2 & REN_1 & REN_0);
@@ -228,7 +237,7 @@ END PROCESS;
 	PREV_OUT_REG : PROCESS (CLK)
 	BEGIN
 		IF rising_edge(CLK) THEN
-			if RST = '1' then
+			if RST_SYNC = '1' then
 				PREV_OUT <= (others => '0');
 			else
 			
@@ -266,9 +275,9 @@ END PROCESS;
 		end case;
 	end process;
 	
-	MUX_FINAL_ADDR_BUS: PROCESS(ADDR_MUX_CTRL,AUX_ADDR_REG,ADDR_REG_OUT_BUS)
+	MUX_FINAL_ADDR_BUS: PROCESS(ADDR_AUX_REG_DIS,AUX_ADDR_REG,ADDR_REG_OUT_BUS)
 	begin
-		case ADDR_MUX_CTRL IS
+		case ADDR_AUX_REG_DIS IS
 		when '1' =>
 			ADDRESS_BUS <= AUX_ADDR_REG; 
 		when others =>
@@ -300,6 +309,7 @@ END PROCESS;
 		
 		OPCODE_OUT => OPCODE_OUT,
 		REG_SEL_OUT => REG_SEL_OUT,
+		RST_SYNC => RST_SYNC,
 		
 		ROM_ADDR_OUT => ROM_ADDR_OUT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		CLK => CLK,
@@ -320,7 +330,7 @@ END PROCESS;
 	);
 
 	REGISTERS : REG_ARRAY PORT MAP(
-		REG_SEL2 => "110",
+		REG_SEL2 => REG_SEL2,
 		REG_SEL => REG_SEL_OUT,
 		DATA_OUT_BUS => REG_OUTS,
 		DATA_IN_BUS => DATA_BUS_IN,
@@ -330,12 +340,13 @@ END PROCESS;
 		READ_REG => READ_REG,
 		WRITE_REG => REG_ARR_WEN,
 		BYTE_SEL => BYTE_SEL,
-		CLK => CLK
+		CLK => CLK,
+		RST => RST_SYNC
 	);
 	
 	------------------------------------ SPECIAL COMBINATIONAL LOGIC ----------------------------------------
 
-	ADDR_MUX_CTRL <= RST or ADDR_AUX_REG_DIS;
+	
 
 	READ_REG <= '1' WHEN (REN_2 & REN_1 & REN_0) = STD_LOGIC_VECTOR(to_unsigned(1, 3)) ELSE
 		'0';

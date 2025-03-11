@@ -89,5 +89,5 @@ L: set to 1 if the dst argument is LESS than src argument.
 -: Not used.
 
 === RESET ROUTINE ===
-The Routine last for 6 clock cycles, the start direction of a program is loaded from
+The Routine last for 9 clock cycles, the start direction of a program is loaded from
 the directions 0x0001 and 0x0002.

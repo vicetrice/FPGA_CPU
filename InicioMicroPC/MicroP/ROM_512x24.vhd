@@ -72,6 +72,8 @@ architecture Behavioral of ROM_512x24 is
 				8#763# => X"00090E", --EXC/SAVE
 				8#764# => X"000104", --EXC/SAVE
 				8#765# => X"041100", --EXC/SAVE
+				--8#766# => X"028400", --ONLY FOR THE XST TO BE HAPPY, CAN BE ERASED AFTER PUSH/POP OP ARE IMPLEMENTED
+
 
 				
 				

@@ -21,26 +21,28 @@ architecture Behavioral of RAM_64Kx8 is
 	 --		equivalent in C
 	 -- While ( Reg1 != 255) ++Reg1; 
 	 
-	 16#0000# => X"B6", --LDA TO PC VALUE 0xEEEE (JMP)
-	 16#0001# => X"EE", --LSB
+	 16#0000# => X"B6", --LDA TO PC VALUE 0xEEFF (JMP)
+	 16#0001# => X"FF", --LSB
 	 16#0002# => X"EE", --MSB
+	 
+	 
 	 
 	 
 	 --16#0003# => X"9A", --JNZ TO DIRECTION IN REG 2 (SRC REG2 encoded in this byte)
 	 --16#0004# => X"9E", -- PC (DST)
 
-	 16#EEEE# => X"61", --MOV TO REG 1 VALUE: 255
-	 16#EEEF# => X"FF",
+	 16#EEFF# => X"61", --MOV TO REG 1 VALUE: 255
+	 16#EF00# => X"FF",
 	 
-	 16#EEF0# => X"00", --ADD 1 TO REG 0
-	 16#EEF1# => X"01",
+	 16#EF01# => X"00", --ADD 1 TO REG 0
+	 16#EF02# => X"01",
 	
-	 16#EEF2# => X"19",-- SUB TO REG 1 REG 0
-    16#EEF3# => X"18",
+	 16#EF03# => X"19",-- SUB TO REG 1 REG 0
+    16#EF04# => X"18",
 	 
-	 16#EEF4# => X"96", --JNZ TO IMM16 0xEEEE
-	 16#EEF5# => X"EE", 
-	 16#EEF6# => X"EE", 
+	 16#EF05# => X"96", --JNZ TO IMM16 0xEEEE
+	 16#EF06# => X"FF", 
+	 16#EF07# => X"EE", 
 
 	 --16#0008# => X"00",
 

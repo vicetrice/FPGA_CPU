@@ -70,8 +70,12 @@ architecture MIXTA of CPU7SEG is
 
 begin
   -- Invertir la señal de reset
-  RST_AUX <= not RST;
-
+  process(CLOCK) 
+  begin
+  if rising_edge(CLOCK) then
+	RST_AUX <= not RST;
+  end if;
+end process;
   -- Divisor de frecuencia: 50MHz -> 1Hz
   process (CLOCK)
   begin
