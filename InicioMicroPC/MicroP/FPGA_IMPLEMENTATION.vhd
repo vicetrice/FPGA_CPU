@@ -20,7 +20,7 @@ architecture MIXTA of CPU7SEG is
         READY : IN STD_LOGIC := '1';
         DATA_BUS_OUT : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
         ADDRESS_BUS : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
-        DATA_BUS_IN_EXTERN: in STD_LOGIC_VECTOR(7 downto 0);
+        DATA_BUS_IN_EXTERN: in STD_LOGIC_VECTOR(7 DOWNTO 0);
         EXTERN_READ: out STD_LOGIC;
         EXTERN_WRITE: out STD_LOGIC;
         ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(8 DOWNTO 0);
@@ -62,40 +62,60 @@ architecture MIXTA of CPU7SEG is
   signal RAM_OUT : STD_LOGIC_VECTOR(7 downto 0);
   signal EXTERN_READ: STD_LOGIC; 
   signal EXTERN_WRITE : STD_LOGIC;
-  signal RST_AUX : STD_LOGIC;
+  signal RST_AUTO : STD_LOGIC := '0';  -- Reset automático (inicialmente activo)
+  signal RST_FINAL : STD_LOGIC;        -- Reset combinado (manual + automático)
   signal CLK_SLOW : STD_LOGIC := '0';
+  signal CLOCK_PULSE: STD_LOGIC;
 
   -- Contador para dividir la frecuencia
   signal CLK_DIV : unsigned(25 downto 0) := (others => '0');
 
+  -- Contador de reset automático (5 segundos)
+  signal RESET_COUNTER : unsigned(27 downto 0) := (others => '0');
+
 begin
+
+  -- Generación del reset automático
+  process (CLOCK)
+  begin
+    if rising_edge(CLOCK) then
+      if RESET_COUNTER < 250_000_000 then  -- 5 segundos a 50MHz
+        RESET_COUNTER <= RESET_COUNTER + 1;
+        RST_AUTO <= '0';  -- Mantiene reset activo
+      else
+        RST_AUTO <= '1';  -- Libera reset
+      end if;
+    end if;
+  end process;
+
+ 
   -- Invertir la señal de reset
   process(CLOCK) 
   begin
-  if rising_edge(CLOCK) then
-	RST_AUX <= not RST;
-  end if;
-end process;
+    if rising_edge(CLOCK) then
+      RST_FINAL <= not (RST and RST_AUTO);
+    end if;
+  end process;
+
+
   -- Divisor de frecuencia: 50MHz -> 1Hz
   process (CLOCK)
   begin
     if rising_edge(CLOCK) then
-	 
-	
-      if CLK_DIV = 49_999_999 then  -- 50M ciclos ? 1 Hz
+      if CLK_DIV = 49_999_999 then  -- 50M ciclos = 1 Hz
         CLK_DIV <= (others => '0');  -- Reiniciar contador
         CLK_SLOW <= not CLK_SLOW;    -- Invertir la señal
       else
         CLK_DIV <= CLK_DIV + 1;
       end if;
-	end if;
+    end if;
   end process;
 
   -- Instancia de la CPU2
   CPU_INST : CPU2
     port map(
         CLK => CLK_SLOW,
-        RST => RST_AUX,
+        RST => RST_FINAL,
         READY => '1',
         DATA_BUS_OUT => DATA_BUS,
         ADDRESS_BUS => ADDRESS,
@@ -123,7 +143,7 @@ end process;
   MUX7SEG_INST : MUX7SEG
     port map(
         CLK => CLOCK,
-        RST => RST_AUX,
+        RST => RST_FINAL,
         D5 => ADDRESS(15 downto 12),
         D4 => ADDRESS(11 downto 8),
         D3 => ADDRESS(7 downto 4),

@@ -31,47 +31,44 @@ begin
 
 
 
-    WR_RD: process(CLK,RST)
-    variable sel: STD_LOGIC_VECTOR(2 downto 0);
+    WR_RD: process(CLK)
     begin
         if rising_edge(CLK) then
-         if RST = '1' then
-			registers <=(others => (others => '0')); --USING THIS RST FOR THE IMPLEMENTATION; DONT KNOW WHAT IS WRONG IF YOU USE DUAL PORT RAM
-			else
-			  --WRITE
-			if WRITE_REG = READ_REG then
-                sel := REG_SEL2;
-            else
-                sel := REG_SEL;
-            end if;
+           --WRITE
+				if RST = '1' then
+				registers <= (others => (others => '0'));
+				
+				else
+
+				
 
             if WRITE_REG = '1' and READ_REG = '0' then
                 if BYTE_SEL = '0' then
-                    registers(to_integer(unsigned(sel)))(7 downto 0) <= DATA_IN_BUS;
+                    registers(to_integer(unsigned(REG_SEL)))(7 downto 0) <= DATA_IN_BUS;
                 else
-                    registers(to_integer(unsigned(sel)))(15 downto 8) <= DATA_IN_BUS;
+                    registers(to_integer(unsigned(REG_SEL)))(15 downto 8) <= DATA_IN_BUS;
                 end if;
 				--READ
 				elsif READ_REG = '1' and WRITE_REG = '0' then
                 --READING THE BYTE
                 if BYTE_SEL = '0' then
-                    DATA_OUT_BUS <= registers(to_integer(unsigned(sel)))(7 downto 0);
+                    DATA_OUT_BUS <= registers(to_integer(unsigned(REG_SEL)))(7 downto 0);
                 else
-                    DATA_OUT_BUS <= registers(to_integer(unsigned(sel)))(15 downto 8);
+                    DATA_OUT_BUS <= registers(to_integer(unsigned(REG_SEL)))(15 downto 8);
                 end if;	
 				else
 				IF INC_DEC_EN = '1' THEN
 					IF INC_DEC = '1' THEN
-						registers(to_integer(unsigned(sel))) <= STD_LOGIC_VECTOR(unsigned(registers(to_integer(unsigned(sel)))) + 1) ;
+						registers(to_integer(unsigned(REG_SEL2))) <= STD_LOGIC_VECTOR(unsigned(registers(to_integer(unsigned(REG_SEL2)))) + 1) ;
 					ELSE
-						registers(to_integer(unsigned(sel))) <= STD_LOGIC_VECTOR(unsigned(registers(to_integer(unsigned(sel)))) - 1) ;
+						registers(to_integer(unsigned(REG_SEL2))) <= STD_LOGIC_VECTOR(unsigned(registers(to_integer(unsigned(REG_SEL2)))) - 1) ;
 
 					END IF;
 				END IF;
 				
             end if;
+			
 				end if;
-				
         end if;
 		  
 

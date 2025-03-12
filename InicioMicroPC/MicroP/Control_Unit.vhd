@@ -71,7 +71,7 @@ ARCHITECTURE Behavioral OF Control_Unit IS
     SIGNAL instruction_reg : STD_LOGIC_VECTOR(15 DOWNTO 0) := (OTHERS => '0'); -- Instruction register
     SIGNAL CONTROL_OUT : STD_LOGIC_VECTOR(23 DOWNTO 0) := (OTHERS => '0'); -- Control signal output from ROM
 	 SIGNAL JNZ: STD_LOGIC;
-	 SIGNAL RST_CYCLES: STD_LOGIC_VECTOR(8 downto 0);
+	 SIGNAL RST_CYCLES: STD_LOGIC_VECTOR(6 downto 0);
 	 
 	
 BEGIN
@@ -84,27 +84,35 @@ BEGIN
 					
 				RST_CYCLES <= (others => '1');
 				else
-				RST_CYCLES <=  '0' & RST_CYCLES(8 downto 1);
+				RST_CYCLES <=  '0' & RST_CYCLES(6 downto 1);
 				end if;
 			end if;
 		end process;
 
 		
     -- Instruction Register process (Store the instruction in the instruction register)
-    INST_REG : PROCESS (CLK)
+    INST_REG_MSB : PROCESS (CLK)
     BEGIN
         IF rising_edge(CLK) THEN
-		  if RST_CYCLES(6) = '1' then
-					instruction_reg <= (others => '0');
-		  else
-            IF CONTROL_OUT(0) = '1' THEN
-                IF CONTROL_OUT(16) = '1' THEN
+		  if(RST_CYCLES(6) = '1') then
+					                    instruction_reg(15 DOWNTO 8) <= (others => '0'); -- LSB
+            elsIF CONTROL_OUT(0) = '1' and CONTROL_OUT(16) = '1' THEN
                     instruction_reg(15 DOWNTO 8) <= INSTRUCTION; -- MSB
-                ELSE
-                    instruction_reg(7 DOWNTO 0) <= INSTRUCTION; -- LSB
-                END IF;
+                
             END IF;
-        end if;
+		  END IF;
+    END PROCESS;
+	 
+	 INST_REG_LSB : PROCESS (CLK)
+    BEGIN
+        IF rising_edge(CLK) THEN
+				if(RST_CYCLES(6) = '1') then
+					                    instruction_reg(7 DOWNTO 0) <= (others => '0'); -- LSB
+		  
+            elsIF CONTROL_OUT(0) = '1' and CONTROL_OUT(16) = '0' THEN
+                    instruction_reg(7 DOWNTO 0) <= INSTRUCTION; -- LSB
+                
+            END IF;
 		  END IF;
     END PROCESS;
 
