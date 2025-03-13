@@ -22,7 +22,7 @@ ENTITY Control_Unit IS
         TREG_EN : OUT STD_LOGIC; -- 6: Temporary Register enable  
         IR_REG_SEL_BYTE : OUT STD_LOGIC; -- 7: Select which byte of the 16-bit IR to use for register selection 0: LSB, 1:MSB.   
         INC_DEC_EN : OUT STD_LOGIC; -- 8: Instruction Pointer increment/decrement control  
-        ADDR_AUX_REG_DIS : OUT STD_LOGIC; -- 9: aux Address register Write disable  
+        FINAL_ADDR_SEL : OUT STD_LOGIC; -- 9: SELECT FROM WHERE IS THE FINAL ADDRESS COMING: 0: REGISTER, 1:AUX ADDR REG.
         REN_2 : OUT STD_LOGIC; -- 10: (used to multiplex reading)
         RAM_WEN : OUT STD_LOGIC; -- 11: RAM write enable  
         BYTE_SEL : OUT STD_LOGIC; -- 12: BYTE SELECT  
@@ -32,7 +32,9 @@ ENTITY Control_Unit IS
         FG_SEL_IN : OUT STD_LOGIC; --16: SELECT FROM WHERE TO WRITE IN THE FG REGISTER. 0: ALU, 1: INTERNAL BUS, it works as byte select for reg when ALU op
         --17: BYTE SELECT FOR INSTRUCTION REGISTER
         ADDR_SEL : OUT STD_LOGIC;--18: SELECT WHICH DIRECTION USE FOR ADDRESS BUS: 0: IP, 1:SP
-			LOAD_AUX_ADDR_REG: OUT STD_LOGIC; --19: IF 1: LOAD THE ADDRESS OUT OF THE REG_ARRAY
+		  LOAD_AUX_ADDR_REG: OUT STD_LOGIC; --19: IF 1: LOAD THE AUX ADDRESS REGISTER 
+		  AUX_ADDR_SEL_IN: OUT STD_LOGIC; --20: SELECT FROM WHICH PATH LOAD THE AUX ADDR REG, 0: REGISTER, 1:INTERNAL_DATA_BUS
+			
         -- SPECIAL OUTS --
         OPCODE_OUT : OUT STD_LOGIC_VECTOR(3 DOWNTO 0); -- 4-bit opcode output
         REG_SEL_OUT : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- 3-bit register select output
@@ -164,6 +166,9 @@ BEGIN
 					 JNZ <= '1';
 				WHEN X"B" => 
 					 addr <= "0010" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --LDA OP
+				WHEN X"8" => 
+					 addr <= "0011" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --STR OP
+
             WHEN OTHERS =>
                 addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP (EXCEPT CMP AND SHL/SHR)
 
@@ -222,8 +227,8 @@ BEGIN
     WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
     ELSE '0'; -- Instruction Pointer Increment/Decrement
     
-    ADDR_AUX_REG_DIS <= CONTROL_OUT(8) 
-    WHEN (READY /= '0' Or (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
+    FINAL_ADDR_SEL <= CONTROL_OUT(8) 
+    WHEN ((CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
     ELSE '0'; -- Instruction Pointer Enable
     
     REN_2 <= CONTROL_OUT(9) 
@@ -231,7 +236,7 @@ BEGIN
     ELSE '0'; -- multiplex read
     
     RAM_WEN <= CONTROL_OUT(10) 
-    WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
+    WHEN ((CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
     AND (ZFLAG = '0' or JNZ /= '1')
     ELSE '0'; -- RAM Write Enable
     
@@ -260,6 +265,9 @@ BEGIN
     WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
     ELSE '0' ;
 
+	 AUX_ADDR_SEL_IN <= CONTROL_OUT(19) 
+    WHEN (READY /= '0' OR (CONTROL_OUT(9) & CONTROL_OUT(3) & CONTROL_OUT(1)) /= STD_LOGIC_VECTOR(to_unsigned(2, 3)))
+    ELSE '0' ;
 
     ROM_ADDR_OUT <= addr; -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 RST_SYNC <= RST_CYCLES(6);

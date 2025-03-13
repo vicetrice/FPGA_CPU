@@ -32,13 +32,14 @@ architecture MIXTA of CPU7SEG is
 
   -- Componente RAM
   component RAM_64Kx8
-    port(
-        clk     : in  std_logic;
-        we      : in  std_logic;
-        re      : in  std_logic;
-        address : in  std_logic_vector(15 downto 0);
+        Port (
+        clk     : in  std_logic;                           -- Reloj
+        we      : in  std_logic;                           -- Habilitación de escritura
+        address : in  std_logic_vector(15 downto 0);       -- Dirección de memoria (64K posiciones)
+		  address2 : in  std_logic_vector(15 downto 0);      -- ONLY READ ADDRESS
+		  data_out2: out std_logic_vector(7 downto 0);
         data_out : out std_logic_vector(7 downto 0);
-        data_in : in std_logic_vector(7 downto 0)
+		  data_in : in std_logic_vector(7 downto 0)      
     );
   end component;
 
@@ -60,12 +61,12 @@ architecture MIXTA of CPU7SEG is
   signal DATA_BUS : STD_LOGIC_VECTOR(7 downto 0);
   signal ADDRESS : STD_LOGIC_VECTOR(15 downto 0);
   signal RAM_OUT : STD_LOGIC_VECTOR(7 downto 0);
-  signal EXTERN_READ: STD_LOGIC; 
   signal EXTERN_WRITE : STD_LOGIC;
   signal RST_AUTO : STD_LOGIC := '0';  -- Reset automático (inicialmente activo)
   signal RST_FINAL : STD_LOGIC;        -- Reset combinado (manual + automático)
   signal CLK_SLOW : STD_LOGIC := '0';
   signal CLOCK_PULSE: STD_LOGIC;
+  signal READ_ONLY_RAM_BUS: STD_LOGIC_VECTOR(7 downto 0);
 
   -- Contador para dividir la frecuencia
   signal CLK_DIV : unsigned(25 downto 0) := (others => '0');
@@ -114,13 +115,13 @@ begin
   -- Instancia de la CPU2
   CPU_INST : CPU2
     port map(
-        CLK => CLK_SLOW,
+        CLK => CLOCK,
         RST => RST_FINAL,
         READY => '1',
         DATA_BUS_OUT => DATA_BUS,
         ADDRESS_BUS => ADDRESS,
         DATA_BUS_IN_EXTERN => RAM_OUT,  -- Recibe datos de la RAM
-        EXTERN_READ => EXTERN_READ,
+        EXTERN_READ => open,
         EXTERN_WRITE => EXTERN_WRITE,
         ROM_ADDR_OUT => open,
         ALU_OUT_EXT => open,
@@ -131,11 +132,12 @@ begin
   -- Instancia de la RAM
   RAM_INST : RAM_64Kx8
     port map(
-        clk => CLK_SLOW,
+        clk => CLOCK,
         we => EXTERN_WRITE,  -- Escritura controlada por la CPU
-        re => EXTERN_READ,   -- Lectura controlada por la CPU
         address => ADDRESS,
+		  address2 => X"0004",
         data_out => RAM_OUT,
+		  data_out2 => READ_ONLY_RAM_BUS,
         data_in => DATA_BUS  -- Se escriben los datos de la CPU
     );
 
@@ -148,8 +150,8 @@ begin
         D4 => ADDRESS(11 downto 8),
         D3 => ADDRESS(7 downto 4),
         D2 => ADDRESS(3 downto 0),
-        D1 => DATA_BUS(7 downto 4),
-        D0 => DATA_BUS(3 downto 0),
+        D1 => READ_ONLY_RAM_BUS(7 downto 4),
+        D0 => READ_ONLY_RAM_BUS(3 downto 0),
         CAT => CAT,
         AN5 => AN5, AN4 => AN4, AN3 => AN3, AN2 => AN2, AN1 => AN1, AN0 => AN0
     );

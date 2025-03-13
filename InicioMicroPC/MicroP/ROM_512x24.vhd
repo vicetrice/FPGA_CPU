@@ -51,7 +51,7 @@ architecture Behavioral of ROM_512x24 is
 				--JNZ/LDA IMM8 MICROCODE
 				8#100# => X"004088", --FETCH
 				8#101# => X"004089", --DECODE
-				8#102# => X"004198", --EXC
+				8#102# => X"004098", --EXC
 				8#103# => X"00090E", --EXC/SAVE
 				8#104# => X"000104", --EXC/SAVE
 				8#105# => X"041100", --EXC/SAVE
@@ -65,6 +65,18 @@ architecture Behavioral of ROM_512x24 is
 				8#125# => X"000144", --EXC/SAVE
 				8#126# => X"041100", --EXC/SAVE
 				
+				--STR IMM8 MICROCODE
+				8#140# => X"004088", --FETCH
+				8#141# => X"004089", --DECODE
+				8#142# => X"004088", --EXC
+				8#143# => X"0C0002", --EXC
+				8#144# => X"000500", --EXC
+				8#145# => X"041000", --EXC
+
+
+
+
+				
 				--RST MICROCODE (SAME AS LDA BUT IT WILL USE THE AUX ADDR REG)
 				8#760# => X"004188", --FETCH
 				8#761# => X"004189", --DECODE
@@ -72,6 +84,7 @@ architecture Behavioral of ROM_512x24 is
 				8#763# => X"00090E", --EXC/SAVE
 				8#764# => X"000104", --EXC/SAVE
 				8#765# => X"041100", --EXC/SAVE
+				
 				--8#766# => X"028400", --ONLY FOR THE XST TO BE HAPPY, CAN BE ERASED AFTER PUSH/POP OP ARE IMPLEMENTED
 
 

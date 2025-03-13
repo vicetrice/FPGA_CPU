@@ -32,6 +32,7 @@ begin
 
 
     WR_RD: process(CLK)
+    variable sel: STD_LOGIC_VECTOR(2 downto 0);
     begin
         if rising_edge(CLK) then
            --WRITE

@@ -6,9 +6,10 @@ entity RAM_64Kx8 is
     Port (
         clk     : in  std_logic;                           -- Reloj
         we      : in  std_logic;                           -- Habilitación de escritura
-        re      : in  std_logic;                           -- Habilitación de lectura
         address : in  std_logic_vector(15 downto 0);       -- Dirección de memoria (64K posiciones)
-        data_out : out std_logic_vector(7 downto 0);    
+		  address2 : in  std_logic_vector(15 downto 0);      -- ONLY READ ADDRESS
+		  data_out2: out std_logic_vector(7 downto 0);
+        data_out : out std_logic_vector(7 downto 0);
 		  data_in : in std_logic_vector(7 downto 0)      
     );
 end RAM_64Kx8;
@@ -43,6 +44,17 @@ architecture Behavioral of RAM_64Kx8 is
 	 16#EF05# => X"96", --JNZ TO IMM16 0xEEEE
 	 16#EF06# => X"FF", 
 	 16#EF07# => X"EE", 
+	 
+	 16#EF08# => X"80", --STR VAL REG 0
+	 16#EF09# => X"04",--LSB
+	 16#EF0A# => X"00", --MSB
+	 
+	 16#EF0B# => X"B6", --JMP TO IMM16 0xEF0B WHILE(1)
+	 16#EF0C# => X"0B", --LSB
+	 16#EF0D# => X"EF", --MSB
+	 
+	 
+
 
 	 --16#0008# => X"00",
 
@@ -96,12 +108,21 @@ begin
     process (clk)
     begin
         if rising_edge(clk) then
-            if we = '1' and re = '0' then
+
+            if we = '1' then
                 RAM(to_integer(unsigned(address))) <= data_in;
-            elsif re = '1' and we = '0' then
-                data_out <= RAM(to_integer(unsigned(address)));
+				else
+					 data_out <= RAM(to_integer(unsigned(address)));
 				end if;
+            
+								data_out2 <= RAM(to_integer(unsigned(address2)));
+
+				
         end if;
+		  
+		  
     end process;
+	
+	 
 
 end Behavioral;

@@ -22,19 +22,22 @@ architecture behavior of tb_CPU2 is
             ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(8 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-				REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				AUX_REG_ADDR_OUT: OUT STD_LOGIC_VECTOR(15 downto 0) --SOLO TEST
+
 
 
         );
     end component;
 	 
 	 component RAM_64Kx8 
-    Port (
+   Port (
         clk     : in  std_logic;                           -- Reloj
         we      : in  std_logic;                           -- Habilitación de escritura
-        re      : in  std_logic;                           -- Habilitación de lectura
         address : in  std_logic_vector(15 downto 0);       -- Dirección de memoria (64K posiciones)
-        data_out : out std_logic_vector(7 downto 0);    
+		  address2 : in  std_logic_vector(15 downto 0);      -- ONLY READ ADDRESS
+		  data_out2: out std_logic_vector(7 downto 0);
+        data_out : out std_logic_vector(7 downto 0);
 		  data_in : in std_logic_vector(7 downto 0)      
     );
 	end component;
@@ -52,6 +55,8 @@ architecture behavior of tb_CPU2 is
 	 SIGNAL ALU_OUT_EXT:  STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 SIGNAL STAT_OUT: STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 	 signal REG_SEL_OUT_CPU :  STD_LOGIC_VECTOR(2 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+	 SIGNAL AUX_REG_ADDR_OUT: STD_LOGIC_VECTOR(15 downto 0); --SOLO TEST
+	 signal READ_ONLY_BUS: STD_LOGIC_VECTOR(7 downto 0);
 
 
 
@@ -90,7 +95,8 @@ begin
            ROM_ADDR_OUT => ROM_ADDR_OUT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				ALU_OUT_EXT => ALU_OUT_EXT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				STAT_OUT => STAT_OUT,-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-				REG_SEL_OUT_CPU  => REG_SEL_OUT_CPU-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				REG_SEL_OUT_CPU  => REG_SEL_OUT_CPU,-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				AUX_REG_ADDR_OUT => AUX_REG_ADDR_OUT  --SOLO TEST
 
 
 		  );
@@ -98,9 +104,10 @@ begin
 	RAM:   RAM_64Kx8 Port  map (
         clk     => CLK,                           -- Reloj
         we      => EXTERN_WRITE,                           -- Habilitación de escritura
-        re      => EXTERN_READ,                           -- Habilitación de lectura
         address => ADDRESS_BUS,       -- Dirección de memoria (64K posiciones)
+		  address2 => X"0004",
         data_out => DATA_BUS_IN_EXTERN,
+		  data_out2 => READ_ONLY_BUS,
 		  data_in => DATA_BUS_OUT 
     );
 

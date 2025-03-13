@@ -36,7 +36,9 @@ PORT (
 				ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(8 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 				STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-				REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0) -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+				AUX_REG_ADDR_OUT: OUT STD_LOGIC_VECTOR(15 downto 0) --SOLO TEST
+
 
 
 
@@ -60,7 +62,8 @@ PORT (
 		ROM_ADDR_OUT: OUT STD_LOGIC_VECTOR(8 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		ALU_OUT_EXT: OUT STD_LOGIC_VECTOR(7 downto 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 		STAT_OUT: OUT STD_LOGIC_VECTOR(7 downto 0);  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-		REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0) -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+		REG_SEL_OUT_CPU : OUT STD_LOGIC_VECTOR(2 DOWNTO 0); -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+		AUX_REG_ADDR_OUT: OUT STD_LOGIC_VECTOR(15 downto 0) --SOLO TEST
 
 
 
@@ -85,7 +88,9 @@ CentralPU: CPU port map(
 			ROM_ADDR_OUT  => ROM_ADDR_OUT,-- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 			ALU_OUT_EXT => ALU_OUT_EXT, -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
 			STAT_OUT => STAT_OUT,   -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
-			REG_SEL_OUT_CPU => REG_SEL_OUT_CPU  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+			REG_SEL_OUT_CPU => REG_SEL_OUT_CPU,  -- USAR SOLO PARA TESTS!!!!!!!!!!!!!!!!!!!
+			AUX_REG_ADDR_OUT => AUX_REG_ADDR_OUT --SOLO TEST
+
 
 			
 
