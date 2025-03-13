@@ -79,6 +79,7 @@ Z: 3-bit register identifier of a register (see Registers section)
 	* MOV with REG argument.
 	* JNZ with REG argument.
 	* LDA with REG argument.
+	* STR with IMM and REG argument.
 
 === Flag register layout ===
 Flag register layout is ----LECZ where
