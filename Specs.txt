@@ -75,11 +75,13 @@ Z: 3-bit register identifier of a register (see Registers section)
 * Instructions can be 2-3 bytes long
     * PUSH/POP/SHL/SHR use 1 extra byte as padding.
     * LDR/STR/LDA with Y=0 (imm16) are 3 bytes each.
+*PUSHF with Y=0 (imm8) doesn't use the register identifier bits.
 * Operations that uses SRC as first byte:
 	* MOV with REG argument.
 	* JNZ with REG argument.
 	* LDA with REG argument.
 	* STR with IMM and REG argument.
+	* PUSHF with REG argument.
 
 === Flag register layout ===
 Flag register layout is ----LECZ where

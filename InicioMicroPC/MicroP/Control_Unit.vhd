@@ -9,7 +9,7 @@ ENTITY Control_Unit IS
     -- 001: REGISTERS
     -- 010: RAM
     -- 011: ACC
-    -- 100: ZFLAG
+    -- 100: FLAGS
     -- 110: ALU
 
     --MULTIPLEX ADDR_REG_OUT_BUS SIGNAL
@@ -173,6 +173,11 @@ BEGIN
 							SHR <= imm_or_reg;
 					 WHEN X"2" => 
 							addr <= "0100" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --CMP OP
+					 WHEN X"F" =>
+							addr <= "0101" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --POP/POPF OP
+					 WHEN X"D" =>
+							addr <= "0110" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --PUSHF OP
+
                 WHEN OTHERS =>
                     addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP (EXCEPT CMP)
 

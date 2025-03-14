@@ -20,7 +20,7 @@ architecture Behavioral of RAM_64Kx8 is
 	 
 	 --			PROGRAM
 	 --		equivalent in C
-	 -- do {++Reg1; }while ( Reg1 != 0x04) Reg1;
+	 -- do {++Reg1; }while ( Reg1 != 0x07) Reg1;
 	 -- Reg1 = Reg1 << 1;
 	 -- Reg1 = Reg1 >> 1;
 	 -- while(1); 
@@ -35,8 +35,8 @@ architecture Behavioral of RAM_64Kx8 is
 	 --16#0003# => X"9A", --JNZ TO DIRECTION IN REG 2 (SRC REG2 encoded in this byte)
 	 --16#0004# => X"9E", -- PC (DST)
     
-	 16#EEFA# => X"61", --MOV TO REG 1 VAL 0x04
-	 16#EEFB# => X"04", 
+	 16#EEFA# => X"61", --MOV TO REG 1 VAL 0x07
+	 16#EEFB# => X"07", 
 	 
 	 16#EEFC# => X"60", --MOV TO REG 0 VAL 0x00
  	 16#EEFD# => X"00", 
@@ -53,8 +53,8 @@ architecture Behavioral of RAM_64Kx8 is
     16#EF04# => X"29",
 	 
 	 16#EF05# => X"96", --JNZ TO IMM16 0xEF01
-	 16#EF06# => X"01", 
-	 16#EF07# => X"EF",
+	 16#EF06# => X"FE", 
+	 16#EF07# => X"EE",
 
 	 16#EF08# => X"B2", --LDA TO REG2 0x0004
 	 16#EF09# => X"04", --LSB 
@@ -75,9 +75,33 @@ architecture Behavioral of RAM_64Kx8 is
 	 16#EF13# => X"88", --STR VAL REG 0 IN DIR POINTED BY REG 2
 	 16#EF14# => X"8A",
 	 
-	 16#EF15# => X"B6", --JMP TO IMM16 0xEF15 WHILE(1)
-	 16#EF16# => X"15", --LSB
-	 16#EF17# => X"EF", --MSB
+	 16#EF15# => X"FB", --POPF TO REG 3
+	 16#EF16# => X"00", --PADDING BYTE
+	 
+	 16#EF17# => X"8B", --STR VAL REG 3 IN DIR POINTED BY REG 2
+	 16#EF18# => X"8A",
+	 
+	 16#EF19# => X"D0", --PUSHF IMM8 VALUE 0xDD (REG SEL BITS DOESN'T MATTER)
+	 16#EF1A# => X"DD", 
+	 
+	 16#EF1B# => X"FB", --POPF TO REG 3
+	 16#EF1C# => X"00", --PADDING BYTE
+	 
+	 16#EF1D# => X"8B", --STR VAL REG 3 IN DIR POINTED BY REG 2
+	 16#EF1E# => X"8A",
+	 
+	 16#EF1F# => X"D8", --PUSHF REG 0 
+	 16#EF20# => X"00", --PADDING BYTE 
+	 
+	 16#EF21# => X"FB", --POPF TO REG 3
+	 16#EF22# => X"00", --PADDING BYTE
+	 
+	 16#EF23# => X"8B", --STR VAL REG 3 IN DIR POINTED BY REG 2
+	 16#EF24# => X"8A",
+	 
+	 16#EF25# => X"B6", --JMP TO IMM16 WHILE(1)
+	 16#EF26# => X"25", --LSB
+	 16#EF27# => X"EF", --MSB
 	 
 	 
 
