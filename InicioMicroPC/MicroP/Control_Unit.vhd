@@ -78,6 +78,7 @@ ARCHITECTURE Behavioral OF Control_Unit IS
     SIGNAL CONTROL_OUT : STD_LOGIC_VECTOR(23 DOWNTO 0) := (OTHERS => '0'); -- Control signal output from ROM
     SIGNAL JNZ : STD_LOGIC;
     SIGNAL RST_CYCLES : STD_LOGIC_VECTOR(6 DOWNTO 0);
+	 SIGNAL SHR: STD_LOGIC;
 BEGIN
     RST_ROUTINE : PROCESS (CLK)
     BEGIN
@@ -153,6 +154,7 @@ BEGIN
         --reg_sel := instruction_reg(2 DOWNTO 0);
 
         JNZ <= '0';
+		  SHR <= '0';
         IF RST_CYCLES(0) = '1' THEN
             addr <= "11111" & STD_LOGIC_VECTOR(MIC);
         ELSE
@@ -166,16 +168,19 @@ BEGIN
                     addr <= "0010" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --LDA OP
                 WHEN X"8" =>
                     addr <= "0011" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --STR OP
+					 WHEN X"C" =>
+							addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --SHL/SHR OP
+							SHR <= imm_or_reg;
 
                 WHEN OTHERS =>
-                    addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP (EXCEPT CMP AND SHL/SHR)
+                    addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP (EXCEPT CMP)
 
             END CASE;
         END IF;
 
         -- Assign values to output signals
     END PROCESS;
-    PROCESS (CONTROL_OUT(6), instruction_reg)
+    PROCESS (CONTROL_OUT(6), instruction_reg,SHR)
         VARIABLE opcode : STD_LOGIC_VECTOR(3 DOWNTO 0);
         VARIABLE reg_sel : STD_LOGIC_VECTOR(2 DOWNTO 0);
     BEGIN
@@ -188,7 +193,7 @@ BEGIN
             reg_sel := instruction_reg(10 DOWNTO 8);
         END IF;
 
-        OPCODE_OUT <= opcode;
+        OPCODE_OUT <= opcode or (STD_LOGIC_VECTOR(to_unsigned(0,3)) & SHR);
         REG_SEL_OUT <= reg_sel;
 
     END PROCESS;

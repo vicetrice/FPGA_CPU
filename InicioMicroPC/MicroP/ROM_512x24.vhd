@@ -80,6 +80,7 @@ architecture Behavioral of ROM_512x24 is
 				8#163# => X"120400", --EXC
 				8#164# => X"001000", --SECURITY CYCLE FOR NO CHANGE RAM
 				
+				
 				--RST MICROCODE (SAME AS LDA BUT IT WILL USE THE AUX ADDR REG)
 				8#760# => X"004188", --FETCH
 				8#761# => X"004189", --DECODE

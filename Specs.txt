@@ -72,8 +72,8 @@ Z: 3-bit register identifier of a register (see Registers section)
 * instructions with reg: reg arguments have the register, could be SRC or DST, encoded in the
   first three bits of the second instruction byte and the other bits are the same of the first byte.
 * For LDA/STR, the Y-bit indicates imm16 (0) and full reg (1). Z-bits are ALWAYS reg.
-* Instructions can be 1-3 bytes long
-    * PUSH/POP with one register argument are one byte instructions
+* Instructions can be 2-3 bytes long
+    * PUSH/POP/SHL/SHR use 1 extra byte as padding.
     * LDR/STR/LDA with Y=0 (imm16) are 3 bytes each.
 * Operations that uses SRC as first byte:
 	* MOV with REG argument.
