@@ -171,7 +171,8 @@ BEGIN
 					 WHEN X"C" =>
 							addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --SHL/SHR OP
 							SHR <= imm_or_reg;
-
+					 WHEN X"2" => 
+							addr <= "0100" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --CMP OP
                 WHEN OTHERS =>
                     addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP (EXCEPT CMP)
 

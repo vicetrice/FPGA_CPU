@@ -56,7 +56,7 @@ architecture Behavioral of ROM_512x24 is
 				8#104# => X"000104", --EXC/SAVE
 				8#105# => X"041100", --EXC/SAVE
 				
-					--JNZ/LDA REG MICROCODE
+				--JNZ/LDA REG MICROCODE
 				8#120# => X"004088", --FETCH
 				8#121# => X"004089", --DECODE
 				8#122# => X"010103", --EXC
@@ -80,7 +80,21 @@ architecture Behavioral of ROM_512x24 is
 				8#163# => X"120400", --EXC
 				8#164# => X"001000", --SECURITY CYCLE FOR NO CHANGE RAM
 				
+				--CMP IMM8 MICROCODE
+				8#200# => X"004088", --FETCH
+				8#201# => X"004089", --DECODE
+				8#202# => X"000022", --EXC
+				8#203# => X"000218", --EXC
+				8#204# => X"003000", --SAVE
 				
+				--CMP REG MICROCODE
+				8#220# => X"004088", --FETCH
+				8#221# => X"004089", --DECODE
+				8#222# => X"010003", --EXC
+				8#223# => X"000052", --EXC
+				8#224# => X"000228", --EXC
+				8#225# => X"003000", --SAVE
+					
 				--RST MICROCODE (SAME AS LDA BUT IT WILL USE THE AUX ADDR REG)
 				8#760# => X"004188", --FETCH
 				8#761# => X"004189", --DECODE

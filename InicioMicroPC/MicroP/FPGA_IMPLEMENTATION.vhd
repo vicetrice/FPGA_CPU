@@ -103,7 +103,7 @@ begin
   process (CLOCK)
   begin
     if rising_edge(CLOCK) then
-      if CLK_DIV = 49_999_999 then  -- 50M ciclos = 1 Hz
+      if CLK_DIV = 9_999_999 then  -- 50M ciclos = 1 Hz
         CLK_DIV <= (others => '0');  -- Reiniciar contador
         CLK_SLOW <= not CLK_SLOW;    -- Invertir la señal
       else
@@ -115,7 +115,7 @@ begin
   -- Instancia de la CPU2
   CPU_INST : CPU2
     port map(
-        CLK => CLOCK,
+        CLK => CLK_SLOW,
         RST => RST_FINAL,
         READY => '1',
         DATA_BUS_OUT => DATA_BUS,
@@ -132,7 +132,7 @@ begin
   -- Instancia de la RAM
   RAM_INST : RAM_64Kx8
     port map(
-        clk => CLOCK,
+        clk => CLK_SLOW,
         we => EXTERN_WRITE,  -- Escritura controlada por la CPU
         address => ADDRESS,
 		  address2 => X"0004",

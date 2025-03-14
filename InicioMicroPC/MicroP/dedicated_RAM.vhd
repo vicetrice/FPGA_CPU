@@ -20,11 +20,13 @@ architecture Behavioral of RAM_64Kx8 is
 	 
 	 --			PROGRAM
 	 --		equivalent in C
-	 -- do {++Reg 1; }while ( Reg1 != 0x04); 
+	 -- do {++Reg1; }while ( Reg1 != 0x04) Reg1;
+	 -- Reg1 = Reg1 << 1;
+	 -- Reg1 = Reg1 >> 1;
 	 -- while(1); 
 	 
-	 16#0000# => X"B6", --LDA TO PC VALUE 0xEEFF (JMP)
-	 16#0001# => X"FF", --LSB
+	 16#0000# => X"B6", --LDA TO PC VALUE 0xEEFB (JMP)
+	 16#0001# => X"FA", --LSB
 	 16#0002# => X"EE", --MSB
 	 
 	 
@@ -32,19 +34,27 @@ architecture Behavioral of RAM_64Kx8 is
 	 
 	 --16#0003# => X"9A", --JNZ TO DIRECTION IN REG 2 (SRC REG2 encoded in this byte)
 	 --16#0004# => X"9E", -- PC (DST)
-
-	 16#EEFF# => X"61", --MOV TO REG 1 VALUE: 0x04
-	 16#EF00# => X"04",
+    
+	 16#EEFA# => X"61", --MOV TO REG 1 VAL 0x04
+	 16#EEFB# => X"04", 
+	 
+	 16#EEFC# => X"60", --MOV TO REG 0 VAL 0x00
+ 	 16#EEFD# => X"00", 
+	 
+	 16#EEFE# => X"80", --STR VAL REG 0 IN 0x0004
+	 16#EEFF# => X"04", --LSB
+	 16#EF00# => X"00", --MSB
+	 
 	 
 	 16#EF01# => X"00", --ADD 1 TO REG 0
 	 16#EF02# => X"01",
 	
-	 16#EF03# => X"19",-- SUB TO REG 1 REG 0
-    16#EF04# => X"18",
+	 16#EF03# => X"28", -- CMP REG 0 TO REG 1
+    16#EF04# => X"29",
 	 
-	 16#EF05# => X"96", --JNZ TO IMM16 0xEEFF
-	 16#EF06# => X"FF", 
-	 16#EF07# => X"EE",
+	 16#EF05# => X"96", --JNZ TO IMM16 0xEF01
+	 16#EF06# => X"01", 
+	 16#EF07# => X"EF",
 
 	 16#EF08# => X"B2", --LDA TO REG2 0x0004
 	 16#EF09# => X"04", --LSB 
