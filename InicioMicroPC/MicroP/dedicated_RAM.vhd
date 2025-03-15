@@ -19,15 +19,15 @@ architecture Behavioral of RAM_64Kx8 is
     signal RAM : RAM_Array := (
 	 
 	 --			PROGRAM
-	 --		equivalent in C
+	 --		equivalent in C until direction 0xEF12, while (1) is at the end
 	 -- do {++Reg1; }while ( Reg1 != 0x07) Reg1;
 	 -- Reg1 = Reg1 << 1;
 	 -- Reg1 = Reg1 >> 1;
 	 -- while(1); 
 	 
-	 16#0000# => X"B6", --LDA TO PC VALUE 0xEEFB (JMP)
-	 16#0001# => X"FA", --LSB
-	 16#0002# => X"EE", --MSB
+	 16#0000# => X"B6", --/*
+	 16#0001# => X"FA", -- 
+	 16#0002# => X"EE", -- LDA IP ,0xEEFB*/
 	 
 	 
 	 
@@ -35,73 +35,92 @@ architecture Behavioral of RAM_64Kx8 is
 	 --16#0003# => X"9A", --JNZ TO DIRECTION IN REG 2 (SRC REG2 encoded in this byte)
 	 --16#0004# => X"9E", -- PC (DST)
     
-	 16#EEFA# => X"61", --MOV TO REG 1 VAL 0x07
-	 16#EEFB# => X"07", 
+	 16#EEFA# => X"61", --/*
+	 16#EEFB# => X"07", --MOV R1, 0x07*/
 	 
-	 16#EEFC# => X"60", --MOV TO REG 0 VAL 0x00
- 	 16#EEFD# => X"00", 
+	 16#EEFC# => X"60", --/*
+ 	 16#EEFD# => X"00", -- MOV R0, 0x00*/
 	 
-	 16#EEFE# => X"80", --STR VAL REG 0 IN 0x0004
+	 16#EEFE# => X"80", --/*STR  [0x0004], R0 
 	 16#EEFF# => X"04", --LSB
-	 16#EF00# => X"00", --MSB
+	 16#EF00# => X"00", --MSB*/
 	 
 	 
-	 16#EF01# => X"00", --ADD 1 TO REG 0
-	 16#EF02# => X"01",
+	 16#EF01# => X"00", --/*
+	 16#EF02# => X"01", --ADD R0, 0x01*/ 
 	
-	 16#EF03# => X"28", -- CMP REG 0 TO REG 1
-    16#EF04# => X"29",
+	 16#EF03# => X"28", -- /*
+    16#EF04# => X"29", -- CMP R0, R1*/
 	 
-	 16#EF05# => X"96", --JNZ TO IMM16 0xEF01
-	 16#EF06# => X"FE", 
-	 16#EF07# => X"EE",
+	 16#EF05# => X"96", -- /* JNZ 0xEF01
+	 16#EF06# => X"FE", -- LSB
+	 16#EF07# => X"EE", -- MSB*/
 
-	 16#EF08# => X"B2", --LDA TO REG2 0x0004
+	 16#EF08# => X"B2", --/*LDA R2, 0x0004
 	 16#EF09# => X"04", --LSB 
-	 16#EF0A# => X"00", --MSB
+	 16#EF0A# => X"00", --MSB*/
 	 
-	 16#EF0B# => X"88", --STR VAL REG 0 IN DIR POINTED BY REG 2
-	 16#EF0C# => X"8A",
+	 16#EF0B# => X"88", --/*
+	 16#EF0C# => X"8A", --STR [R2], R0 */
 	 
-	 16#EF0D# => X"C0", --SHL REG 0
-	 16#EF0E# => X"00", --PADDING BYTE
+	 16#EF0D# => X"C0", --/*SHL R0
+	 16#EF0E# => X"00", --PADDING BYTE*/
 	 
-	 16#EF0F# => X"88", --STR VAL REG 0 IN DIR POINTED BY REG 2
-	 16#EF10# => X"8A",
+	 16#EF0F# => X"88", --/*
+	 16#EF10# => X"8A", --STR [R2], R0 */
 	 
-	 16#EF11# => X"C8", --SHR REG 0
-	 16#EF12# => X"00", --PADDING BYTE
+	 16#EF11# => X"C8", --/*SHR R0
+	 16#EF12# => X"00", --PADDING BYTE*/
 	 
-	 16#EF13# => X"88", --STR VAL REG 0 IN DIR POINTED BY REG 2
-	 16#EF14# => X"8A",
+	 16#EF13# => X"88", --/*	 
+	 16#EF14# => X"8A", --STR [R2], R0*/
 	 
-	 16#EF15# => X"FB", --POPF TO REG 3
-	 16#EF16# => X"00", --PADDING BYTE
+	 16#EF15# => X"FB", --/*POPF R3
+	 16#EF16# => X"00", --PADDING BYTE*/
 	 
-	 16#EF17# => X"8B", --STR VAL REG 3 IN DIR POINTED BY REG 2
-	 16#EF18# => X"8A",
+	 16#EF17# => X"8B", --/*
+	 16#EF18# => X"8A", --STR [R2], R3*/
 	 
-	 16#EF19# => X"D0", --PUSHF IMM8 VALUE 0xDD (REG SEL BITS DOESN'T MATTER)
-	 16#EF1A# => X"DD", 
+	 16#EF19# => X"D0", --/*PUSHF 0xDD (REG SEL BITS DOESN'T MATTER)
+	 16#EF1A# => X"DD", -- */
 	 
-	 16#EF1B# => X"FB", --POPF TO REG 3
-	 16#EF1C# => X"00", --PADDING BYTE
+	 16#EF1B# => X"FB", --/*POPF R3
+	 16#EF1C# => X"00", --PADDING BYTE*/
 	 
-	 16#EF1D# => X"8B", --STR VAL REG 3 IN DIR POINTED BY REG 2
-	 16#EF1E# => X"8A",
+	 16#EF1D# => X"8B", --/* 
+	 16#EF1E# => X"8A", --STR [R2], R3 */
 	 
-	 16#EF1F# => X"D8", --PUSHF REG 0 
-	 16#EF20# => X"00", --PADDING BYTE 
+	 16#EF1F# => X"D8", --/*PUSHF R0 
+	 16#EF20# => X"00", --PADDING BYTE*/ 
 	 
-	 16#EF21# => X"FB", --POPF TO REG 3
-	 16#EF22# => X"00", --PADDING BYTE
+	 16#EF21# => X"FB", --/*POPF R3
+	 16#EF22# => X"00", --PADDING BYTE*/
 	 
-	 16#EF23# => X"8B", --STR VAL REG 3 IN DIR POINTED BY REG 2
-	 16#EF24# => X"8A",
+	 16#EF23# => X"8B", --/*STR [R2], R3 
+	 16#EF24# => X"8A", -- */
 	 
-	 16#EF25# => X"B6", --JMP TO IMM16 WHILE(1)
-	 16#EF26# => X"25", --LSB
-	 16#EF27# => X"EF", --MSB
+	 16#EF25# => X"74", --/*LDR R4, [0x0004]
+	 16#EF26# => X"04", --LSB
+	 16#EF27# => X"00", --MSB*/
+	 
+	 16#EF28# => X"04", --/*ADD R4, 0x01
+	 16#EF29# => X"01", -- */
+	 
+	 16#EF2A# => X"8C", --/*STR [R2], R4 
+	 16#EF2B# => X"8A", --*/
+	 
+	 16#EF2C# => X"7A", --/*LDR R5, [R2]
+	 16#EF2D# => X"7D", -- */
+	 
+	 16#EF2E# => X"05", --/*ADD R5, 0x01
+	 16#EF2F# => X"01", --*/
+	 
+	 16#EF30# => X"8D", --/*STR [R2], R5 
+	 16#EF31# => X"8A", -- */
+	 
+	 16#EF32# => X"B6", --/*JMP 0xEF32
+	 16#EF33# => X"32", --LSB
+	 16#EF34# => X"EF", --MSB (inf loop)*/
 	 
 	 
 
