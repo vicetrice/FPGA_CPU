@@ -165,7 +165,7 @@ BEGIN
                     addr <= "0010" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --JNZ OP
                     JNZ <= '1';
                 WHEN X"B" =>
-                    addr <= "0010" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --LDA OP
+                    addr <= "0010" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --LEA OP
                 WHEN X"8" =>
                     addr <= "0011" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --STR OP
 					 WHEN X"C" =>

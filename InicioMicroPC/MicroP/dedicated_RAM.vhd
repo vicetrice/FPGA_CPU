@@ -27,7 +27,7 @@ architecture Behavioral of RAM_64Kx8 is
 	 
 	 16#0000# => X"B6", --/*
 	 16#0001# => X"FA", -- 
-	 16#0002# => X"EE", -- LDA IP ,0xEEFB*/
+	 16#0002# => X"EE", -- LEA IP ,[0xEEFB]*/
 	 
 	 
 	 
@@ -56,7 +56,7 @@ architecture Behavioral of RAM_64Kx8 is
 	 16#EF06# => X"FE", -- LSB
 	 16#EF07# => X"EE", -- MSB*/
 
-	 16#EF08# => X"B2", --/*LDA R2, 0x0004
+	 16#EF08# => X"B2", --/*LEA R2, [0x0004]
 	 16#EF09# => X"04", --LSB 
 	 16#EF0A# => X"00", --MSB*/
 	 
