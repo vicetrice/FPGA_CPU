@@ -1,2 +1,2 @@
 # FPGA_CPU
-8 bit CPU implemented in VHDL for FPGA (spartan 6)
+8 bit CPU programmed in VHDL for FPGA (spartan 6)
