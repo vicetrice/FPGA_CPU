@@ -1,0 +1,3 @@
+Write the asm.
+Implement a DMA controller.
+Run PONG.
