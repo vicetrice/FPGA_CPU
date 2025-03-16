@@ -118,9 +118,34 @@ architecture Behavioral of RAM_64Kx8 is
 	 16#EF30# => X"8D", --/*STR [R2], R5 
 	 16#EF31# => X"8A", -- */
 	 
-	 16#EF32# => X"B6", --/*JMP 0xEF32
-	 16#EF33# => X"32", --LSB
-	 16#EF34# => X"EF", --MSB (inf loop)*/
+	 16#EF32# => X"B7", --/*LEA SP, 0xA9A8
+	 16#EF33# => X"A8", --
+	 16#EF34# => X"A9", --*/
+	 
+	 16#EF35# => X"E0", --/*PUSH 0x99
+	 16#EF36# => X"99", --*/
+	 
+	 16#EF37# => X"F5", --/*POP R5
+	 16#EF38# => X"00", --PADDING BYTE*/
+	 
+	 16#EF39# => X"05", --/*ADD R5, 0x04
+	 16#EF3A# => X"04", --*/
+	 
+	 16#EF3B# => X"ED", --/*PUSH R5
+	 16#EF3C# => X"00", --PADDING BYTE*/
+	 
+	 16#EF3D# => X"F4", --/*POP R4
+	 16#EF3E# => X"00", --PADDING BYTE*/
+	 
+	 16#EF3F# => X"8C", --/*STR [R2], R4 
+	 16#EF40# => X"8A", -- */
+	 
+	 16#EF41# => X"8F", --/*STR [R2], SP 
+	 16#EF42# => X"8A", -- */
+	 
+	 16#EF43# => X"B6", --/*JMP 0xEF43
+	 16#EF44# => X"43", --LSB
+	 16#EF45# => X"EF", --MSB (inf loop)*/
 	 
 	 
 

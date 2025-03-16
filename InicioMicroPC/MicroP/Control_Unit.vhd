@@ -179,6 +179,8 @@ BEGIN
 							addr <= "0110" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --PUSHF OP
 					 WHEN X"7" =>
 							addr <= "0111" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --LDR OP
+					 WHEN X"E" =>
+							addr <= "1000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --PUSH OP					 
                 WHEN OTHERS =>
                     addr <= "0000" & imm_or_reg & STD_LOGIC_VECTOR(MIC); --ALU OP (EXCEPT CMP)
 
