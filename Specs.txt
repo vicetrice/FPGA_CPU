@@ -100,3 +100,16 @@ L: set to 1 if the dst argument data is LESS than src argument data.
 The Routine last for 7 clock cycles, the start direction of a program is loaded from
 the directions 0x0001 and 0x0002.
 * The initialization of SP is responsability of the programmer, could be loaded with LEA instruction.
+
+=== Memory Layout ===
+0x0000 to 0xFFEF: General purpose
+0xFFF0 to 0xFFFF: *I/O ports
+
+*0xFFF0: Is mapped as tx register for UART.
+*0xFFF1: Is mapped as rx register for UART.
+*0xFFF2 to 0xFFFF: Is pending to implement, could be used for GPIO registers.
+
+=== UART ===
+Doesn't have fifo for rx or tx so it can only receive or sent one 8 bit character, for now is only able to transmit to 9600 baud with 1 stop bit, 1 start bit and 8 bits for data with no parity bit, maybe the data rate for tx and rx will be configurable later via special register mapped in memory.
+
+To clear the rx register use the instruction ´STR [0xFFF1], X´ this will set the Rx register to 0x00.
