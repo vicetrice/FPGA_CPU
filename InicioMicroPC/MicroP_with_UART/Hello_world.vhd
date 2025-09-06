@@ -35,7 +35,8 @@ entity hello_world is
 		clk: in std_logic;
 		rest: in std_logic;
 		uart_tx: out std_logic;
-		uart_rx: in std_logic
+		uart_rx: in std_logic;
+		gpio_pin: inout std_logic_vector(7 downto 0)
 	
 	);
 end hello_world;
@@ -67,6 +68,9 @@ signal port_mux_out_bus: std_logic_vector (7 downto 0);
 
 --------- I/O REGISTERS -----------------
 signal uart_rx_reg: std_logic_vector (7 downto 0);
+signal dir_reg_out: std_logic_vector(7 downto 0);
+signal o_reg_out: std_logic_vector(7 downto 0);
+signal i_reg_out: std_logic_vector(7 downto 0);
 
 ------------- SPECIAL REGISTERS -------------
 signal port_mux_sel: std_logic_vector (3 downto 0);
@@ -134,6 +138,20 @@ begin
       tx     => uart_tx
    );
 	
+	io_mod_inst:  entity work.gpio_module
+	port map(
+		clk => clk,
+		reset => rst,
+		we_dir_reg => port_write_line(2),
+		we_o_reg => port_write_line(3),
+		dir_reg_in => cpu_out_bus,
+		o_reg_in => cpu_out_bus,
+		dir_reg_out => dir_reg_out,
+		o_reg_out => o_reg_out,
+		i_reg_in	=> gpio_pin,
+		i_reg_out => i_reg_out
+	);
+	
 	------- MULTIPLEX I/O AND MEM ----------------
 	
 	MULTIPLEX_1 : process(mem_or_port_mux_sel_sync,ram_data_out_bus,port_mux_out_bus)
@@ -151,12 +169,14 @@ begin
 	
 	----------- MULTIPLEX I/O ports -----------------------
 	
-	MULTIPLEX_2 : process(port_mux_sel,uart_rx_reg)
+	MULTIPLEX_2 : process(port_mux_sel,uart_rx_reg,i_reg_out)
 	begin
 	
 		case port_mux_sel is 
 			when x"1" => 
-			port_mux_out_bus <= uart_rx_reg;		
+			port_mux_out_bus <= uart_rx_reg;	
+			when x"4" =>
+			port_mux_out_bus <= i_reg_out;
 			when others =>
 			port_mux_out_bus <= x"00";
 		
@@ -179,7 +199,18 @@ begin
 		end if;
 	end process;
 	
+	-------------------------- GPIO PIN CONFIG ------------------
+	gpio_pin(0) <= o_reg_out(0) when dir_reg_out(0) = '1' else 'Z';
+	gpio_pin(1) <= o_reg_out(1) when dir_reg_out(1) = '1' else 'Z';
+	gpio_pin(2) <= o_reg_out(2) when dir_reg_out(2) = '1' else 'Z';
+	gpio_pin(3) <= o_reg_out(3) when dir_reg_out(3) = '1' else 'Z';
+	gpio_pin(4) <= o_reg_out(4) when dir_reg_out(4) = '1' else 'Z';
+	gpio_pin(5) <= o_reg_out(5) when dir_reg_out(5) = '1' else 'Z';
+	gpio_pin(6) <= o_reg_out(6) when dir_reg_out(6) = '1' else 'Z';
+	gpio_pin(7) <= o_reg_out(7) when dir_reg_out(7) = '1' else 'Z';
 	
-
+	
+	
+	
 end behavioral;
 

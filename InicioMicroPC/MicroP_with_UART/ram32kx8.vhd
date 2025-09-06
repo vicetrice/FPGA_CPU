@@ -233,17 +233,112 @@ architecture Behavioral of RAM_32Kx8 is
 --	 16#0011# => X"06", --IMM8 LSB, VAL = 0x06
 --	 16#0012# => X"00", --IMM8 MSB, VAL = 0x00
 
-    -- Programa para enviar "Hola mundo" por UART esperando confirmación 0xAC
+--    -- Programa para enviar "Hola mundo" por UART esperando confirmación 0xAC
+--		
+--	 16#000# => X"B6", --/*
+--	 16#001# => X"00", -- 
+--	 16#002# => X"01", -- LEA IP ,[0x0100]*/	
+--		
+--    16#100# => X"B2", -- LEA R2, 0x00BB
+--    16#101# => X"BB",
+--    16#102# => X"00",
+--
+--    16#103# => X"7A", -- LOOP SEND: LDR R0, [R2]
+--    16#104# => X"78",
+--
+--    16#105# => X"20", -- CMP R0, 0x00
+--    16#106# => X"00",
+--
+--    16#107# => X"96", -- JNZ CONTINUE (salta a 0x010D)
+--    16#108# => X"0D",
+--    16#109# => X"01",
+--	 
+--	 16#10A# => X"B6", -- JMP END (0x0120)
+--    16#10B# => X"20",
+--    16#10C# => X"01",
+--
+--    16#10D# => X"80", -- CONTINUE: STR [0xFFF0], R0
+--    16#10E# => X"F0",
+--    16#10F# => X"FF",
+--
+--    16#110# => X"71", -- WAIT_CONFIRM: LDR R1, [0xFFF1]
+--    16#111# => X"F1",
+--    16#112# => X"FF",
+--
+--    16#113# => X"21", -- CMP R1, 0x23
+--    16#114# => X"31",
+--
+--    16#115# => X"96", -- JNZ WAIT_CONFIRM (salta a 0x0110)
+--    16#116# => X"10",
+--    16#117# => X"01",
+--	 
+--	 16#118# => X"80", -- STR [0xFFF1], R0 ( Wiritng to UART RX reg works to confirm the message is received to UART)
+--    16#119# => X"F1",
+--    16#11A# => X"FF",
+--	 
+--    16#11B# => X"02", -- ADD R2, 0x01
+--    16#11C# => X"01",
+--
+--    16#11D# => X"B6", -- JMP LOOP_SEND (0x0103)
+--    16#11E# => X"03",
+--    16#11F# => X"01",
+--
+--    16#120# => X"B6", -- END: JMP END (loop infinito)
+--    16#121# => X"20",
+--    16#122# => X"01",
+--
+--
+--    -- Cadena "Hola mundo" en 0x00BB
+--    16#0BB# => X"48", -- 'H'
+--    16#0BC# => X"6F", -- 'o'
+--    16#0BD# => X"6C", -- 'l'
+--    16#0BE# => X"61", -- 'a'
+--    16#0BF# => X"20", -- ' '
+--    16#0C0# => X"6D", -- 'm'
+--    16#0C1# => X"75", -- 'u'
+--    16#0C2# => X"6E", -- 'n'
+--    16#0C3# => X"64", -- 'd'
+--    16#0C4# => X"6F", -- 'o'
+--    16#0C5# => X"00",  -- null terminator
+
+-- Programa para enviar "Hola mundo" por UART esperando confirmación 0xAC
 		
 	 16#000# => X"B6", --/*
-	 16#001# => X"00", -- 
-	 16#002# => X"01", -- LEA IP ,[0x0100]*/	
-		
-    16#100# => X"B2", -- LEA R2, 0x00BB
-    16#101# => X"BB",
+	 16#001# => X"F0", -- 
+	 16#002# => X"00", -- LEA IP ,[0x00F3]*/	
+	 
+	 
+	 
+	 16#0F0# => X"63",-- MOV R3, 0x04 
+	 16#0F1# => X"04",
+	 
+	 16#0F2# => X"83", -- STR [0xFFF2], R3 (SET GPIO'S TO INPUT OR OUTPUT)
+    16#0F3# => X"F2",
+    16#0F4# => X"FF",
+	 
+	 16#0F5# => X"83", -- STR [0xFFF3], R3 ( SET GPIO 3 TO '1')
+    16#0F6# => X"F3",
+    16#0F7# => X"FF",
+	
+    16#0F8# => X"B2", -- LEA R2, 0x00BB
+    16#0F9# => X"BB",
+    16#0FA# => X"00",
+	 
+	 16#0FB# => X"71", -- READ_GPIO_RX: LDR R1, [0xFFF4] (from GPIO)
+    16#0FC# => X"F4",
+    16#0FD# => X"FF",
+	 
+	 
+	 16#0FE# => X"21", -- CMP R1, 0x05 (KEY 2 PRESSED)
+    16#0FF# => X"05",
+	 
+	 
+	 
+	 16#100# => X"96", -- JNZ READ_GPIO_RX
+    16#101# => X"FB",
     16#102# => X"00",
 
-    16#103# => X"7A", -- LOOP SEND: LDR R0, [R2]
+    16#103# => X"7A", -- LDR R0, [R2]
     16#104# => X"78",
 
     16#105# => X"20", -- CMP R0, 0x00
@@ -253,7 +348,7 @@ architecture Behavioral of RAM_32Kx8 is
     16#108# => X"0D",
     16#109# => X"01",
 	 
-	 16#10A# => X"B6", -- JMP END (0x0120)
+	 16#10A# => X"B6", -- JMP NEAR_END (0x0120)
     16#10B# => X"20",
     16#10C# => X"01",
 
@@ -261,12 +356,12 @@ architecture Behavioral of RAM_32Kx8 is
     16#10E# => X"F0",
     16#10F# => X"FF",
 
-    16#110# => X"71", -- WAIT_CONFIRM: LDR R1, [0xFFF1]
-    16#111# => X"F1",
+    16#110# => X"71", -- WAIT_CONFIRM: LDR R1, [0xFFF4] (from GPIO)
+    16#111# => X"F4",
     16#112# => X"FF",
 
-    16#113# => X"21", -- CMP R1, 0x23
-    16#114# => X"31",
+    16#113# => X"21", -- CMP R1, 0x06 (KEY 1 PRESSED)
+    16#114# => X"06",
 
     16#115# => X"96", -- JNZ WAIT_CONFIRM (salta a 0x0110)
     16#116# => X"10",
@@ -279,13 +374,20 @@ architecture Behavioral of RAM_32Kx8 is
     16#11B# => X"02", -- ADD R2, 0x01
     16#11C# => X"01",
 
-    16#11D# => X"B6", -- JMP LOOP_SEND (0x0103)
-    16#11E# => X"03",
-    16#11F# => X"01",
+    16#11D# => X"B6", -- JMP READ_GPIO_RX (0x00FB)
+    16#11E# => X"FB",
+    16#11F# => X"00",
 
-    16#120# => X"B6", -- END: JMP END (loop infinito)
-    16#121# => X"20",
-    16#122# => X"01",
+	 16#120# => X"63",-- NEAR_END: MOV R3, 0x04 
+	 16#121# => X"00",
+
+	 16#122# => X"83", -- STR [0xFFF3], R3 (SET GPIO 3 to '0')
+    16#123# => X"F3",
+    16#124# => X"FF",
+	 
+    16#125# => X"B6", -- END: JMP END (loop infinito)
+    16#126# => X"25",
+    16#127# => X"01",
 
 
     -- Cadena "Hola mundo" en 0x00BB

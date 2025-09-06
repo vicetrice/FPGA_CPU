@@ -44,7 +44,8 @@ ARCHITECTURE behavior OF CPU_UART_TEST IS
          clk : IN  std_logic;
          rest : IN  std_logic;
          uart_tx : OUT  std_logic;
-         uart_rx : IN  std_logic
+         uart_rx : IN  std_logic;
+			gpio_pin: inout std_logic_vector(7 downto 0)
         );
     END COMPONENT;
     
@@ -53,6 +54,9 @@ ARCHITECTURE behavior OF CPU_UART_TEST IS
    signal clk : std_logic := '0';
    signal rest : std_logic := '0';
    signal uart_rx : std_logic := '0';
+	signal gpio_pin: std_logic_vector(7 downto 0);
+
+	
 
  	--Outputs
    signal uart_tx : std_logic;
@@ -68,7 +72,8 @@ BEGIN
           clk => clk,
           rest => rest,
           uart_tx => uart_tx,
-          uart_rx => uart_rx
+          uart_rx => uart_rx,
+			 gpio_pin => gpio_pin
         );
 
    -- Clock process definitions
@@ -84,6 +89,7 @@ BEGIN
    -- Stimulus process
    stim_proc: process
    begin		
+		gpio_pin <= X"FF";
 		rest <= '0';
 		uart_rx <= '1';
       -- hold reset state for 100 ns.
@@ -93,75 +99,78 @@ BEGIN
 		rest <= '1';
 
       wait for 2000 us;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
+		gpio_pin <= X"00";
 		
 		
 		
-		uart_rx <= '1';
-		wait for BIT_TIME;
-		
-		uart_rx <= '1';
-		wait for BIT_TIME;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		uart_rx <= '1';
-		wait for BIT_TIME;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		uart_rx <= '1';
-		wait for BIT_TIME;
-		
-		
-      wait for 2000 us;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		
-		
-		uart_rx <= '1';
-		wait for BIT_TIME;
-		
-		uart_rx <= '1';
-		wait for BIT_TIME;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		uart_rx <= '1';
-		wait for BIT_TIME;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		uart_rx <= '0';
-		wait for BIT_TIME;
-		
-		uart_rx <= '1';
-		wait for BIT_TIME;
-		
-		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		
+--		
+--		uart_rx <= '1';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '1';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '1';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '1';
+--		wait for BIT_TIME;
+--		
+--		
+--      wait for 2000 us;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		
+--		
+--		uart_rx <= '1';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '1';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '1';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '0';
+--		wait for BIT_TIME;
+--		
+--		uart_rx <= '1';
+--		wait for BIT_TIME;
+--		
+--		
 		wait;
 		
 		
