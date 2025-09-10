@@ -76,7 +76,7 @@ Z: 3-bit register identifier of a register (see Registers section)
 * For LEA/STR, the Y-bit indicates imm16 (0) and full reg (1). Z-bits are ALWAYS reg.
 * Instructions can be 2-3 bytes long
     * PUSH/POP/SHL/SHR use 1 extra byte as padding.
-    * LDR/STR/LEA with Y=0 (imm16) are 3 bytes each.
+    * LDR/STR/LEA/JNZ with Y=0 (imm16) are 3 bytes each.
 *PUSHF with Y=0 (imm8) doesn't use the register identifier bits.
 *PUSH with Y=0 (imm8) doesn't use the register identifier bits.
 * Operations that uses SRC as first byte:
@@ -107,7 +107,10 @@ the directions 0x0001 and 0x0002.
 
 *0xFFF0: Is mapped as tx register for UART.
 *0xFFF1: Is mapped as rx register for UART.
-*0xFFF2 to 0xFFFF: Is pending to implement, could be used for GPIO registers.
+*0xFFF2: Is mapped as dir register for GPIO.
+*0xFFF3: Is mapped as output register for GPIO.
+*0xFFF4: Is mapped as input register for GPIO.
+*0xFFF5 to 0xFFFF: Is pending to implement.
 
 === UART ===
 Doesn't have fifo for rx or tx so it can only receive or sent one 8 bit character, for now is only able to transmit to 9600 baud
@@ -115,4 +118,5 @@ with 1 stop bit, 1 start bit and 8 bits for data with no parity bit, maybe the d
 via special register mapped in memory.
 
 To clear the rx register use the instruction ´STR [0xFFF1], X´ this will set the Rx register to 0x00.
+
 
