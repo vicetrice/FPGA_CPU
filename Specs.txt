@@ -17,7 +17,7 @@ A custom 8-bit CPU with a 16-bit register architecture, supporting basic arithme
 0x8: 		STR		[imm16/reg], reg	-> [imm16/reg] = reg    
 0x9: 		JNZ		imm16/reg		-> IP = imm16/reg if flag Z == 0 else NOP
 0xA: 		ADC^		reg, imm8/reg		-> reg = reg + imm8/reg + c  
-0xB: 		LEA		reg, [imm16/reg]	-> reg = imm16/reg    
+0xB: 		LEA		reg, imm16/reg	-> reg = imm16/reg    
 0xC/0b11001: 	(SHL/SHR)^	reg 			-> reg = reg (<< / >>) 1  
 0xD: 		PUSHF		imm8/reg		-> fg  = imm8/reg  
 0xE: 		PUSH		imm8/reg		-> [SP--] = imm8/reg     
@@ -115,3 +115,4 @@ with 1 stop bit, 1 start bit and 8 bits for data with no parity bit, maybe the d
 via special register mapped in memory.
 
 To clear the rx register use the instruction ´STR [0xFFF1], X´ this will set the Rx register to 0x00.
+
