@@ -1,5 +1,5 @@
 
-// Compilar: g++ -std=c++17 -O2 -o asm_compiler asm_compiler.cpp
+// Compilar: g++ .\asm.cpp .\asm_utilities.cpp .\asm_directive.cpp .\asm_op_handlers.cpp  -o .\asm.exe -Wall -Werror -Wextra
 
 #include "asm.h"
 #include "asm_directive.h"
@@ -61,20 +61,12 @@ int main(int argc, char **argv)
     Gctx.current_section_size = 0;
     for (size_t i = 0; i < lines.size(); ++i)
     {
-        std::string l = lines[i];
-        std::string up = l;
-
-        // Normalize line: uppercase + remove comments
-        for (char &c : up)
-            c = toupper(c);
-        rem_comments(up);
-        if (up.empty())
+        NormalizedLine norm = normalize_line(lines[i]);
+        if (norm.tokens.empty())
             continue;
 
-        // Tokenize line
-        std::vector<std::string> tokens = tokenize(up);
-        if (tokens.empty())
-            continue;
+        std::string up = norm.line;
+        std::vector<std::string> tokens = norm.tokens;
 
         // Handle directives
         if (tokens[0].front() == '.')

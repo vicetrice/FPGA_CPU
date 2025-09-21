@@ -2,6 +2,14 @@
 
 #include "asm.h"
 
+
+struct NormalizedLine {
+    std::string line;               // línea reconstruida
+    std::vector<std::string> tokens; // tokens normalizados
+};
+
+NormalizedLine normalize_line(const std::string &input);
+
 int reg_code(const std::string &r);
 
 void rem_comments(std::string &l);

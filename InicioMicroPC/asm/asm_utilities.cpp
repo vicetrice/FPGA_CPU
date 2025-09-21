@@ -3,6 +3,46 @@
 static const std::unordered_map<std::string, int> reg_map = {
     {"R0", 0}, {"R1", 1}, {"R2", 2}, {"R3", 3}, {"R4", 4}, {"R5", 5}, {"IP", 6}, {"SP", 7}, {"R6", 6}, {"R7", 7}};
 
+static const std::unordered_set<std::string> raw_data_directives = {".DB"};
+
+NormalizedLine normalize_line(const std::string &input)
+{
+    std::string l = input;
+    rem_comments(l);
+    if (l.empty())
+        return {"", {}};
+
+    std::vector<std::string> tokens = tokenize(l);
+    if (tokens.empty())
+        return {"", {}};
+
+    // Uppercase primer token siempre
+    for (char &c : tokens[0])
+        c = toupper(c);
+
+    // Si es directiva que no queremos tocar, dejamos operandos intactos
+    if (raw_data_directives.find(tokens[0]) == raw_data_directives.end())
+    {
+        // Uppercase registros y etiquetas
+        for (size_t t = 1; t < tokens.size(); ++t)
+        {
+            for (char &c : tokens[t])
+                c = toupper(c);
+        }
+    }
+
+    // Reconstruir línea
+    std::ostringstream oss;
+    for (size_t t = 0; t < tokens.size(); ++t)
+    {
+        if (t)
+            oss << ' ';
+        oss << tokens[t];
+    }
+
+    return {oss.str(), tokens};
+}
+
 void rem_comments(std::string &l)
 {
 
@@ -98,8 +138,43 @@ std::vector<std::string> tokenize(const std::string &line)
     std::vector<std::string> toks;
     std::string cur;
     bool inbr = false;
-    for (char c : line)
+    char quote = 0; // 0 = no en comillas
+
+    auto push_token = [&](std::string t, bool quoted)
     {
+        if (!quoted)
+            t = trim(t); // trim solo tokens normales
+        if (!t.empty())
+            toks.push_back(t);
+    };
+
+    for (size_t i = 0; i < line.size(); ++i)
+    {
+        char c = line[i];
+
+        // abrir/cerrar comillas
+        if ((c == '\'' || c == '"') && quote == 0)
+        {
+            quote = c;
+            cur.push_back(c);
+            continue;
+        }
+        else if (quote != 0 && c == quote)
+        {
+            cur.push_back(c);
+            // cerramos token entre comillas
+            quote = 0;
+            continue;
+        }
+
+        if (quote != 0)
+        {
+            // dentro de comillas -> copiar todo literal
+            cur.push_back(c);
+            continue;
+        }
+
+        // fuera de comillas
         if (c == '[')
         {
             inbr = true;
@@ -110,11 +185,17 @@ std::vector<std::string> tokenize(const std::string &line)
             inbr = false;
             cur.push_back(c);
         }
-        else if (!inbr && (c == ',' || isspace((unsigned char)c)))
+        else if (!inbr && c == ',')
         {
+            push_token(cur, false);
+            cur.clear();
+        }
+        else if (!inbr && isspace((unsigned char)c))
+        {
+            // separador de espacios
             if (!cur.empty())
             {
-                toks.push_back(trim(cur));
+                push_token(cur, false);
                 cur.clear();
             }
         }
@@ -123,8 +204,10 @@ std::vector<std::string> tokenize(const std::string &line)
             cur.push_back(c);
         }
     }
+
     if (!cur.empty())
-        toks.push_back(trim(cur));
+        push_token(cur, quote != 0);
+
     return toks;
 }
 

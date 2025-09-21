@@ -19,20 +19,25 @@
 
     SEND_LOOP:
     LDR R0, [R2]          ; Cargar siguiente byte de la cadena
-    CMP R0, 0x00          ; Fin de cadena?
-    JNZ NEAR_END          ; Saltar si fin de cadena
+    CMP R0, 0xFF          ; Fin de cadena?
+    JNZ CONTINUE          ; Saltar si fin de cadena
+    
+    LEA IP,NEAR_END
+    
+    CONTINUE:
     STR [0xFFF0], R0      ; Enviar por UART
 
     WAIT_CONFIRM:
     LDR R1, [0xFFF4]      ; Esperar confirmación
     CMP R1, 0x06          ; KEY1 como confirmación
-    LEA R6, WAIT_CONFIRM  ; Reintentar hasta confirmación
+    JNZ WAIT_CONFIRM  ; Reintentar hasta confirmación
 
+    STR [0xFFF1],R0
     ADD R2, 1             ; Avanzar puntero
     LEA R6, READ_GPIO_RX  ; Repetir
 
     NEAR_END:
-    MOV R3, 0x04
+    MOV R3, 0x00
     STR [0xFFF3], R3       ; Apagar GPIO3
     LEA R6, END            ; Bucle infinito
 
@@ -42,4 +47,4 @@
 
 .sect data 0x00bb
     hola_mundo:
-    .DB 'H','o','l','a',' ','m','u','n','d','o',0x00
+    .DB "Hola mundo",0x00,0xFF
